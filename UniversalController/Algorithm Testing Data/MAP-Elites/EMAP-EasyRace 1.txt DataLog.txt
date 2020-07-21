@@ -1,0 +1,5 @@
+Following data added on: 07/06/2020, 18:52:59
+Generations: 1000
+Initial Pop Size: 100
+MutationRate: 0.1
+____________________________________________________
