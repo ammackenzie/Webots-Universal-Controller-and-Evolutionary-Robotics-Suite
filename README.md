@@ -2,19 +2,18 @@
 
 A universal supervisor controller and Reinforcement Learning suite for Webots ([https://www.cyberbotics.com/](https://www.cyberbotics.com/) ) that can be adapted to **any wheeled robot morphology** with ease. This is also a Reinforcement Learning suite that allows for easy experimentation and controller synthesis with the popular **CMA-ES** evolutionary algorithm, a **novelty search** augmented CMA-ES, and **MAP-Elites**, as well as both a fixed and recurrent neural network.
 
-This suite allows the user to pick a desired configuration of Neural Network and Algorithm to carry out Reinforcement Learning with a robot of their choice.
+This suite allows the user to pick a desired configuration of Neural Network and Algorithm to carry out Reinforcement Learning with a robot of their choice. 
 
 This is a **work in progress** and will continued to be refined, streamlined and expanded.
 
-**Coding Standards**
+## **Coding Standards**
+
 All code code has been designed for **ease of use** and **educational** purposes. Variables are as **close to plain English** as possible, and in cases speed and space efficiency has been sacrificed to make each step of the coding involved **as clear as possible** to the user.
 
 This suite is designed to be used by non-technical as well as technical users and it is asked that the above coding standards are kept in mind during any future merge/pull requests. 
 
-Set up instructions can also be included as comments in each relevant module.
-
-**UniversalController**
-
+## **Universal Controller**
+(Set up instructions can also be found as comments in each relevant module.)
 *Features*
  - Default configuration is for a two wheeled robotic agent but can be easily expanded - instructions inside module next to relevant methods
  - Within a few lines of code a non-technical user can carry out Reinforcement Learning/Controller synthesis with a robotic agent and environment of their choice
@@ -56,7 +55,7 @@ Example set up code from UniversalController.py:
     myEA.runAlgorithm(generations = 40)
 
 
-**Available Configurations:**
+## **Available Configurations:**
 
  *Neural Networks*
  - Fixed Neural Network - standard feed forward NN
@@ -72,7 +71,9 @@ Example set up code from UniversalController.py:
 
  - Currently usable with any wheeled robot - default configuration is two wheels and can be manually edited via instructions in UniversalController.py
  
- **Data Reporting**
+
+## **Data Reporting**
+
  - Dedicated DataReporting module with instructions that allows for:
 	 - Saving and loading of all run and hyperparameter testing data
 	 - Visualisation of run data via box plots
@@ -108,5 +109,6 @@ Example data visualisation code from DataVisualisationandTesting.py:
 A formal user guide will be put together in the future.
 
 
-**Known Deap Library Issue**
--Deap library throws an exception that does not interrupt the running program  but displays in the console window when the CMA-ES algorithm resets itself in-between completed runs. You can simply comment out the few lines of code it refers to if you wish to avoid it clogging up the window.
+# **Known Deap Library Issue**
+
+Deap library throws an exception that does not interrupt the running program  but displays in the console window when the CMA-ES algorithm resets itself in-between completed runs. You can simply comment out the few lines of code it refers to if you wish to avoid it clogging up the window.
