@@ -36,7 +36,7 @@ Example set up code from UniversalController.py:
     
     '''STEP 3: Create your controller instance (pass in the network) '''
     myController = UniversalController(network = network)
-    #optional - default is set to 0 seconds
+    #optional - default is set to 90 seconds
     myController.evalRuntime = 100
 
     '''STEP 4: Pass your distance sensor array to your controller - with max and minimum sensor range (can be found in documentation or robot window) '''
