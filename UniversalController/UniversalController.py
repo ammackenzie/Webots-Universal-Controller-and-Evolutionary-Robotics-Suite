@@ -14,8 +14,9 @@ To successfully initialise:
  - First, via the robot window or the Webots documentation, find the names of your robots distance sensors and place them into a string array like so: distanceSensors = ['cs0', 'cs1', 'cs2', 'cs3']
  - Now initialise desired type of Neural Network (fixed or recurrent) by initialising a new instance of desired class - i.e network = FixedNeuralNetwork(len(distanceSensors))
  - Create a new controller instance with desired values including passing the NN (robot and target names must be defined manually beforehand in DEF fields) - myController = UniversalController(network = network)
- - create instance of desired evolutionary strategy type (standard CMAES or novelty NCMAES) and pass desired solution size (taken from NN), reference to evaluation function myEA, and desired population size like so: CMAES(individualSize = network.solutionSize, evalFunction = myController.evaluateRobot, popSize = 20)
- - call the runAlgorithm() method on your strategy instance
+ - Pass your distance sensor array to your controller intance via the setDistanceSensors() function
+ - Create instance of desired evolutionary strategy type (standard CMAES or novelty NCMAES) and pass desired solution size (taken from NN), reference to evaluation function myEA, and desired population size like so: CMAES(individualSize = network.solutionSize, evalFunction = myController.evaluateRobot, popSize = 20)
+ - Call the runAlgorithm() method on your strategy instance
  
  - OPTIONAL - set custom space dimensions of your maze directly or with setDimensions function (default is a 1m x 1m search space)
  
@@ -226,7 +227,7 @@ class UniversalController:
         self.dataReporting.algorithmTest(myEA, generations, totalRuns)
 
 def main():
-    '''STEP 1: Create an array for your robot's distance sensors '''
+    '''STEP 1: Create an array for your robot's distance sensors (names can be found in documentation or robot window)'''
     #distanceSensors = ['cs0', 'cs1', 'cs2', 'cs3']
     #Another example distance sensor array:
     distanceSensors = ['ds0', 'ds1', 'ds2', 'ds3', 'ds4', 'ds5', 'ds6', 'ds7']
@@ -238,7 +239,7 @@ def main():
     #optional - default is set to 90 seconds
     myController.evalRuntime = 100
 
-    '''STEP 4: Pass your distance sensor array to your controller - with max and minimum sensor range (can be found in documentation or robot window) '''
+    '''STEP 4: Pass your distance sensor array to your controller'''
     myController.setDistanceSensors(distanceSensors)
     #optional - set size of your environment, default is 1m x 1m
     #myController.setDimensions([0.75, 0.75])
