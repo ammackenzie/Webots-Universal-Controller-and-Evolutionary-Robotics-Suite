@@ -1,8 +1,3 @@
-'''
-Created on 12 Jul 2020
-
-@author: Andre
-'''
 import pickle
 import matplotlib
 import matplotlib.pyplot as plt
@@ -24,6 +19,7 @@ class DataReporting:
     fullResults = []
     data = []
     maxEvals = 100 
+    yTicks = 10
     def __init__(self, saveFileName = "undefined"):
         self.saveFileName = saveFileName    
         self.loadFileName = saveFileName
@@ -76,12 +72,26 @@ class DataReporting:
     def algorithmTest(self, myEA, generations, totalRuns):
         self.generations = generations
         self.totalRuns = totalRuns
-        
+        self.popSize = myEA.popSize
+        self.maxEvals = self.generations * self.popSize
         for run in range(totalRuns):
             print("Run: " + str(run))
             self.fullResults.append(myEA.runAlgorithm(self.generations))
         self.saveTestResults()
-        
+    
+    #WIP
+#     def controlGroupTest(self, generations, totalRuns, popSize):
+#         self.generations = generations
+#         self.totalRuns = totalRuns
+#         self.popSize = popSize
+#         self.maxEvals = self.generations * self.popSize
+#         for run in range(totalRuns):
+#             print("Run: " + str(run))
+#             self.fullResults.append(myEA.runAlgorithm(self.generations))
+#         self.saveTestResults()
+#         
+#         
+#         
     def loadData(self, loadFileName = "default"):
         if loadFileName == "default":
             file = open(self.loadFileName, 'rb')
@@ -152,7 +162,7 @@ class DataReporting:
             
         title = "CMA-ES DataVisualisationandTesting on MiddleWall"
         
-        self.generateBoxPlots(data, xAxisData, xAxisLabel, 10, title)
+        self.generateBoxPlots(data, xAxisData, xAxisLabel, title)
         
     def displaySigmaBoxPlots(self):
         data = []
@@ -175,11 +185,11 @@ class DataReporting:
         else:
             splitTitle = self.loadFileName.split(" - ", 2)
             title = splitTitle[0] + ", Environment: " + splitTitle[1]
-        self.pandTtest(data)
-        self.generateBoxPlots(data, xAxisData, "Sigmas", 10, title)
+        #self.pandTtest(data)
+        self.generateBoxPlots(data, xAxisData, "Sigmas", title)
         
     
-    def generateBoxPlots(self, data, xAxisData, xAxisLabel, yTicks, title):
+    def generateBoxPlots(self, data, xAxisData, xAxisLabel, title):
         '''reference: Matplotlib documentation, https://matplotlib.org/3.1.1/gallery/statistics/boxplot_demo.html'''
         fig, ax1 = plt.subplots(figsize=(10, 6))
         #fig.canvas.set_window_title('Sigma DataVisualisationandTesting')
@@ -230,7 +240,7 @@ class DataReporting:
         ax1.set_xlim(0.5, num_boxes + 0.5)
         top = self.maxEvals + 10
         bottom = 0
-        ax1.set_ylim(bottom, top)
+        ax1.set_ylim(bottom, top+20)
         
         ax1.set_xticklabels(xAxisData,
                             rotation=0, fontsize=12)
@@ -261,7 +271,7 @@ class DataReporting:
         fig.text(0.815, 0.15, ' Outliers', color='black', weight='roman',
                   size='medium')
         
-        plt.yticks(np.arange(0, self.maxEvals, yTicks))
+        plt.yticks(np.arange(0, self.maxEvals + 10, self.yTicks))
         plt.show()
         #except:
             #print("Error") #'''TO CHANGE '''
@@ -334,7 +344,7 @@ class DataReporting:
         countPairs = Counter(mostSignificant)
         print(countPairs)
 
-
+    #WIP below
     def pvalue_101(self, mu, sigma, samp_size, samp_mean=0, deltam=0):
         np.random.seed(1234)
         s1 = np.random.normal(mu, sigma, samp_size)

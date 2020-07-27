@@ -9,8 +9,7 @@ class CMAES:
     
     np.random.seed()
     population = []
-
-    def __init__(self, individualSize, evalFunction, popSize = 5, threshold = 0.95, sigma = 0.3, maximise = True):
+    def __init__(self, individualSize, evalFunction, popSize = 5, sigma = 0.3, threshold = 0.95, maximise = True):
         #set random seed as CMA module draws from this
         self.solutionSize = individualSize   
         self.popSize = popSize
@@ -51,7 +50,7 @@ class CMAES:
 
     def refresh(self):
         self.setUp()
-        #self.strategy = cma.Strategy(centroid=[0]*self.solutionSize, sigma=self.sigma, lambda_= self.popSize)
+        
     def runAlgorithm(self, generations):
         np.random.seed() # reset seed
         self.refresh()
@@ -62,13 +61,14 @@ class CMAES:
         slnEval = -1 #default value re
         #pop, logbook = algorithms.eaGenerateUpdate(toolbox, ngen=5, stats=stats, halloffame=hof)
         while gen < generations:
+            print("Running evals for gen: " + str(gen))
             # Generate a new population
             self.population[:] = self.popBoundaries(self.toolbox.generate())
             # Evaluate the individuals
             fitnesses = []
             for i in range(self.popSize):
                 fit, endpoint = self.toolbox.evaluate(self.population[i]) #potential issue here
-                print("Fitness = " + str(fit))
+                #print("Fitness = " + str(fit))
                 fitnesses.append((fit,))
                 if fit >= self.solutionThreshold:
                     slnEval = (gen*self.popSize) + i + 1
@@ -120,7 +120,7 @@ Further reading on Novelty Search: https://www.cs.swarthmore.edu/~meeden/Develop
 '''
 class NCMAES(CMAES):
     np.random.seed()    
-    def __init__(self, individualSize, evalFunction, popSize = 5, noveltyRatio = 0.75, threshold = 0.95, sigma = 0.3, maximise = True):
+    def __init__(self, individualSize, evalFunction, popSize = 5, noveltyRatio = 1.0, sigma = 0.3, threshold = 0.95, maximise = True):
         self.solutionSize = individualSize   
         self.popSize = popSize
         self.maximise = maximise
@@ -178,6 +178,7 @@ class NCMAES(CMAES):
     def runAlgorithm(self, generations):
         np.random.seed() # reset seed
         self.refresh()
+        self.archive[:] = []
         print("Running Novelty CMAES evaluation for " + str(generations) + " generations with a population size of " + str(self.popSize))
         hof = tools.HallOfFame(1)
         gen = 0
@@ -185,6 +186,7 @@ class NCMAES(CMAES):
         slnEval = -1
         #pop, logbook = algorithms.eaGenerateUpdate(toolbox, ngen=5, stats=stats, halloffame=hof)
         while gen < generations:
+            print("Running evals for gen: " + str(gen))
             # Generate a new population
             self.population[:] = self.popBoundaries(self.toolbox.generate())
             # Evaluate the individuals
@@ -192,7 +194,7 @@ class NCMAES(CMAES):
             endpoints = []
             for i in range(self.popSize):
                 fit, endpoint = self.toolbox.evaluate(self.population[i]) #potential issue here
-                print("rfit = " + str(fit))
+                #print("rfit = " + str(fit))
                 endpoints.append(endpoint)
                 fitnesses.append(fit)
                 if fit >= self.solutionThreshold:
@@ -202,8 +204,8 @@ class NCMAES(CMAES):
                     solution = True
                     break
             nFitnesses = self.getNFitnesses(fitnesses, endpoints)
-            print("Combined fitnesses for gen " + str(gen) + ":")
-            print(nFitnesses)
+            #print("Combined fitnesses for gen " + str(gen) + ":")
+            #print(nFitnesses)
             
             for ind, fit in zip(self.population, nFitnesses):
                 fitness = []

@@ -19,23 +19,32 @@ from scipy.stats import ttest_ind
 
 '''BOXPLOT Exmaple from Sigma test data'''
 #myData = DataReporting("Sigma Test - EscapeRoom - 150ME, 25PS, 25SR, 0.1-2.0, 07-21-2020, 12-17-57.txt")
-myData = DataReporting("Sigma Testing Data/Sigma Test - MiddleWall - 150ME, 25PS, 25SR, 0.1-2.0, 07-21-2020, 00-28-46.txt")
+myData = DataReporting("NCMAES FULL TEST - EasyRace, 1.0N, RNN,   - 10000ME, 50PS, 10TR,  07-27-2020, 09-37-54.txt")
 '''Manually ensure the DataReporing class is set with relevant parameters ''' 
-myData.upperLimit = 2.0
-myData.lowerLimit = 0.1
+#myData.upperLimit = 2.0
+#myData.lowerLimit = 0.1
 
-myData.totalRuns = 25
-myData.maxEvals = 150
+myData.totalRuns = 10
+myData.maxEvals = 10000
+myData.yTicks = 1000
 myData.loadData()
 
-testData = myData.displaySigmaBoxPlots()
+#myData.fullResults = [248, 2707, 5613, 5510, 13, 3354, 206, 802, -1, 1225]
+#file = open("NCMAES FULL TEST - EasyRace, 1.0N, RNN,   - 10000ME, 50PS, 10TR,  07-27-2020, 09-37-54.txt",'wb')
+#pickle.dump(myData.fullResults, file)
+#file.close()
+
+#testData = myData.displaySigmaBoxPlots()
+testData = myData.displayAlgorithmBoxPlots("NCMA-ES")
+
+#[-1, 2707, 5613, 5510, 13, 3354, 206, 802, -1, 1225]
 
 '''BOXPLOT Exmaple from Algorithm Test Data'''
-myData = DataReporting("Algorithm Testing Data/CMA-ES/CMA-ES TEST - MiddleWall - 150ME, 25PS, 20TR, 07-21-2020, 00-28-46.txt")
-myData.totalRuns = 20
-myData.maxEvals = 150
-myData.loadData()
-#myData.displayAlgorithmBoxPlots("CMA-ES", "CMA-ES")
+#myData = DataReporting("Algorithm Testing Data/CMA-ES/CMA-ES TEST - MiddleWall - 150ME, 25PS, 20TR, 07-21-2020, 00-28-46.txt")
+#myData.totalRuns = 20
+#myData.maxEvals = 150
+#myData.loadData()
+#myData.displayAlgorithmBoxPlots("CMA-ES", "NCMA-ES")
 
 
 

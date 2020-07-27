@@ -8,7 +8,7 @@ from DataReporting import DataReporting
 
 '''
 Universal supervisor controller for Webots Reinforcement Learning experimentation
-Requirements: Deap Library: https://deap.readthedocs.io/en/master/installation.html
+              
 QUICK START
 To successfully initialise:
  - First, via the robot window or the Webots documentation, find the names of your robots distance sensors and place them into a string array like so: distanceSensors = ['cs0', 'cs1', 'cs2', 'cs3']
@@ -89,7 +89,6 @@ class UniversalController:
     def enableDataReporting(self, saveFileName):
         self.dataReporting.saveFileName = saveFileName
         
-    
     def loadData(self, loadFileName):
         self.myData.loadFileName = loadFileName
         
@@ -122,37 +121,39 @@ class UniversalController:
         self.targetTrans = self.target.getField("translation")
         self.targetLocation = self.targetTrans.getSFVec3f()
         
-    
     def setDimensions(self, spaceDimensions):
         #basic pythagorean calculation to find max distance possible in square space
         self.maxDistance = np.sqrt(spaceDimensions[0]**2 + spaceDimensions[1]**2)
+        print(self.maxDistance)
     
-    def setDistanceSensors(self, distanceSensors, maxValue, minReading = 0):
+    def setDistanceSensors(self, distanceSensors):
         #takes in array of strings - names of distance sensors and int of max possible reading
         #optional minimum base reading if value above 0 - default is set to 0
         self.distanceSensors = []
+        self.minDSvalues = []
+        self.DSValueRange = []
         for i in range(len(distanceSensors)):
             #set and enable each sensor
             self.distanceSensors.append(self.supervisor.getDistanceSensor(distanceSensors[i]))
             self.distanceSensors[i].enable(self.TIME_STEP)
+            self.minDSvalues.append(self.distanceSensors[i].getMinValue())
+            self.DSValueRange.append(self.distanceSensors[i].getMaxValue() - self.minDSvalues[i])
         
-        self.maxDSReading = maxValue
-        self.minDSReading = minReading
+        print(self.DSValueRange)
     
     #get distance sensor values
     def getDSValues(self):
         values = []
         for i in range(len(self.distanceSensors)):
             value = self.distanceSensors[i].getValue()
-            value = value/self.maxDSReading #practical max value
+            #value = value/self.maxDSReading #practical max value
+            value = value - self.minDSvalues[i]
+            if value < 0.0:
+                value = 0.0 #to account for gaussian noise
+            value = value/(self.DSValueRange[i])
             #account for gaussian noise providing higher than max reading
             if value > 1.0:
                 value = 1.0
-            elif self.minDSReading > 0:
-                value = value - (self.minDSReading/self.maxDSReading) #equivalent of base min reading 
-                #to account for gaussian noise providing less than min reading
-                if value < 0.0:
-                    value = 0.0
             values.append(value)
         return values
 
@@ -226,52 +227,52 @@ class UniversalController:
 
 def main():
     '''STEP 1: Create an array for your robot's distance sensors '''
-    distanceSensors = ['cs0', 'cs1', 'cs2', 'cs3']
+    #distanceSensors = ['cs0', 'cs1', 'cs2', 'cs3']
     #Another example distance sensor array:
-    #distanceSensors = ['ds0', 'ds1', 'ds2', 'ds3', 'ds4', 'ds5', 'ds6', 'ds7']
+    distanceSensors = ['ds0', 'ds1', 'ds2', 'ds3', 'ds4', 'ds5', 'ds6', 'ds7']
     '''STEP 2: Create your Neural Network instance '''
-    network = FixedNeuralNetwork(inputs = len(distanceSensors))
-    #network = RecurrentNeuralNetwork(inputs = len(distanceSensors))
+    #network = FixedNeuralNetwork(inputs = len(distanceSensors))
+    network = RecurrentNeuralNetwork(inputs = len(distanceSensors))
     '''STEP 3: Create your controller instance (pass in the network) '''
     myController = UniversalController(network = network)
-    #optional - default is set to 0 seconds
+    #optional - default is set to 90 seconds
     myController.evalRuntime = 100
 
     '''STEP 4: Pass your distance sensor array to your controller - with max and minimum sensor range (can be found in documentation or robot window) '''
-    myController.setDistanceSensors(distanceSensors, 1000, 0)
+    myController.setDistanceSensors(distanceSensors)
     #optional - set size of your environment, default is 1m x 1m
     #myController.setDimensions([0.75, 0.75])
     
     '''STEP 5: Create your algorithm instance '''
-    myEA = CMAES(individualSize = network.solutionSize, evalFunction = myController.evaluateRobot, popSize = 50)
+    myEA = NCMAES(individualSize = network.solutionSize, evalFunction = myController.evaluateRobot, popSize = 50, sigma=1.0)
     #myEA = NCMAES(individualSize = network.solutionSize, evalFunction = myController.evaluateRobot, popSize = 50)
     #myEA = MAPElites(network.solutionSize, myController.evaluateRobot)
     #OPTIONAL FOR MAP ELITES - LOAD SAVED MAP
     #myEA.loadMap(myEA.saveFile)
     
-    '''STEP 6: You can now run an algorithm test with your chosen set up'''
+    '''STEP 6: You can now run a test with your chosen set up'''
     #myEA.runAlgorithm(generations = 40)
     
     ''' ****************************************************************** '''
     '''OPTIONAL Data reporting 1: Create an instance of the DataReporting class with your desired filename '''
-    myData = DataReporting("Sigma Test - MultiMaze")
+    myData = DataReporting("HEMISSON - NCMAES FULL TEST - EasyRace, 1.0N, RNN,  ")
     
     '''OPTIONAL Data reporting 2: Pass your DataReporting instance to your controller '''
     myController.dataReporting = myData
-    
-    '''OPTIONAL Data reporting 3: You can now run an algorithm test '''
-    #myController.algorithmTest(myEA, generations = 5, totalRuns = 50)
+    #myEA.runAlgorithm(generations = 200)
+    '''OPTIONAL Data reporting 3: You can now run a recorded algorithm test '''
+    myController.algorithmTest(myEA, generations = 200, totalRuns = 10)
 
     ''' ****************************************************************** '''
     '''OPTIONAL Sigma DataVisualisationandTesting (compatible with CMA-ES and NCMA-ES: You can also run Sigma testing with your chosen set up'''
-    myData.sigmaGenerations = 6
-    myData.sigmaRuns = 25
-    myController.sigmaTest(myEA, upperLimit=2.0, lowerLimit= 0.1)
+    #myData.sigmaGenerations = 6
+    #myData.sigmaRuns = 25
+    #myController.sigmaTest(myEA, upperLimit=2.0, lowerLimit= 0.1)
     
     ''' ****************************************************************** '''
     '''OPTIONAL MANUAL INDIVIDUAL TESTING: You can also manually test an array of individual NN weights outside of any algorithm'''
-    #individual = [0.5216170885274278, 0.2895953015451246, 0.06382171554745152, -0.08998482231248986, 0.2639848464995353, 0.2552893483045339, -0.32257868614889, 0.013839900264356116, 0.22680924478508585, 0.19606730442549097, -0.14893995214973374, -0.11862148625129211, 0.06280716897173126, 0.4404719011671693, 0.1848562335993722, -0.23766473320496317, 0.5080211360389013, 0.4896046093889448, 0.07882565971800044, 0.13807788510043884, 0.5501567523884221, 0.7459160398427234, 0.03929208763625259, 0.22750450492924412, 0.04832477386235923, 0.3939028245120492, 0.08390625716930607, -0.24088254962282987, 0.21055758730012417, -0.11940290750478755, -0.15184762711395403, -0.23689135719683646, 0.17859785496452765, -0.25486265135808545, 0.49159723035967284, -0.3085574375947232, 0.10449367553249156, -0.38403864213533706, 0.169757687485447, 0.08078529596215302, 0.11980233110084917, -0.3340576427045459, -0.6946829844476097, 0.24643698968039163, -0.452705501913013, -0.18040458269112686, 0.1614850360607852, -0.08760838149947534, 0.10152580706110363, -0.5134007570301459, 0.22876772361499645, 0.10281205190464378, 0.1738186912238501, 0.06538303693809339, 0.22154475774862356, -0.0564554495814543, 0.30562347514646615, -0.2920509162279544, -0.01325031550471584, 0.6895781582902385, 0.23064346979932926, 0.42426325686695654, -0.599425228500209, 0.4958148252464382, 0.018855405865355748, -0.3163622705312846, -0.036711028377043105, 0.48250881406677204, -0.022454084429045076, -0.13647134641624836, 0.332431250756777, 0.05913646915163013, 0.23915926064350612, 0.5563459109101732, 0.43027865602121024, -0.10575218174054184, -0.25024036769166424, -0.0828508493295143, 0.2885054877315155, 0.15897929143556264, 0.09570463590289738, -0.2510670937136365, -0.01985800640985858, 0.11096458082277164, -0.24300184381465945, 0.6244645281513294, -0.509788541753087, 0.37696439174576357, -0.21629545030721378, -0.11586552000722272, 0.032585972034558666, -0.0995403010409664, 0.18086949348774262, 0.2795187828691618, 0.2577772729854515, 0.5644417628771159, -0.38373385508101404, -0.14010722253269323, 0.1585117338367658, -0.18815583535662342, 0.04989884525785822, -0.2519346659294006, 0.0001550241739028374, 0.31466198099922915, -0.12186845097544391, 0.10001578613121899, -0.07071242863131555, -0.29703058521967546, -0.12806579701905005, -0.11244711093633432, -0.08089648721858184, 0.5816827704305054, 0.1686968101529935, 0.11535206231124633, -0.1934391261800256, -0.20757360485177603, 0.23965611866404424, -0.15198354639442033, -0.2397475093203286, -0.18627760656697914, -0.13094157692221445, 0.2913322675871335]
-    #Will run in Webots for supervised observation and return fitness
+    #individual solution for easy race with e-puck 1mx1m Solution found! On eval: 5607
+    #individual = [0.31031731300992854, -0.625717838677998, 0.6822099211950758, 0.35093854856430307, 1.0, 1.0, 0.0009309922329320541, -0.6667059438165372, 1.0, 0.7686658787840771, 0.9829338368777658, -1.0, 1.0, -0.03535018183798579, 0.9159827029809522, 1.0, -1.0, 0.9261351148297444, 0.9370941269429579, 0.09611646569838542, -0.8663865162282224, 1.0, -0.028251179649589866, 0.4061503955849184, -0.08250667681148824, -0.16746124377877428, 0.8178337947911983, -1.0, 0.3535909339816691, -1.0, 1.0, 1.0, -0.5656150166799535, 1.0, -0.16126224128955827, 1.0, -1.0, -0.29056750820102073, -0.8854209318538603, -1.0, 0.24688775452274014, -0.12487889493973085, 0.29071055270549007, -0.7651515341806517, -1.0, -1.0, -1.0, -0.31465437442427496, 0.2510766867974456, 0.5723782486620624, 0.9915336601264425, 0.3116319685494229, -1.0, -1.0, 0.7363206547132071, 0.05777593477124992, 0.19188887789494083, -0.20578177616681684, -0.8668258863884903, -0.6021788695367846, 0.5183740889343345, -1.0, 0.5500037481213166, 1.0, -1.0, -1.0, -0.44165738850252706, 0.43049036826016873, 0.6546771865727868, 0.4446467180913747, 0.39350581662002176, 0.9305053003498948, -0.4935008176214979, -0.06245987808487186, 0.6857409432069611, -0.452700509893487, 1.0, -1.0, -0.06842486278572765, -0.4570739508402518, -0.7228030774278107, 0.7618130695729538, 0.9686366678296847, 0.6605559838799274, 0.9137264735414016, -1.0, -0.8135467077346951, 0.7215679264886387, -1.0, -0.5613849269551666, 0.2853374933108166, -1.0, 1.0, -1.0, 0.6405666793785363, -0.2875108805645757, 0.5121031497618143, -0.14452536128233334, -0.437908361380963, -0.33012555615715544, 1.0, -0.21844058248302184, 0.16582261332465467, -0.005051709103707819, -0.9606691348098384, 0.5535601518474995, -0.5266974330838976, 1.0, -0.04729877975728782, 1.0, 0.05560175660985446, 0.682228882537105, 0.5994424338777845, 0.7824572446153184, -0.007316007687599012, 0.32040004920778414, -1.0, 0.5046873109456637, -1.0, 0.12600552901966905, -1.0, 1.0]
     #fit = myController.evaluateRobot(individual)
 
 main()
