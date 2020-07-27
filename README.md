@@ -1,3 +1,4 @@
+
 # Webots-Universal-Controller-and-Reinforcement-Learning-Suite
 
 A universal supervisor controller and Reinforcement Learning suite for Webots ([https://www.cyberbotics.com/](https://www.cyberbotics.com/) ) that can be adapted to **any wheeled robot morphology** with ease. This is also a Reinforcement Learning suite that allows for easy experimentation and controller synthesis with the popular **CMA-ES** evolutionary algorithm, a **novelty search** augmented CMA-ES, and **MAP-Elites**, as well as both a fixed and recurrent neural network.
@@ -11,6 +12,15 @@ This is a **work in progress** and will continued to be refined, streamlined and
 All code code has been designed for **ease of use** and **educational** purposes. Variables are as **close to plain English** as possible, and in cases speed and space efficiency has been sacrificed to make each step of the coding involved **as clear as possible** to the user.
 
 This suite is designed to be used by non-technical as well as technical users and it is asked that the above coding standards are kept in mind during any future merge/pull requests. 
+
+## **Prerequisites**
+
+ 1. Install Webots: [https://cyberbotics.com/doc/guide/installation-procedure](https://cyberbotics.com/doc/guide/installation-procedure)
+ 2. Install Python: [https://www.python.org/downloads/windows/](https://www.python.org/downloads/windows/)
+ 3. Place the entire 'Universal Controller' folder inside of your 'Controllers' folder in your Webots projects directory (WebotsProjects>YourProject>controllers>UniversalController)
+ 4. Basic understanding of how to set up a Webots Environment and change robot controllers: [https://cyberbotics.com/doc/guide/tutorial-1-your-first-simulation-in-webots](https://cyberbotics.com/doc/guide/tutorial-1-your-first-simulation-in-webots)
+
+
 
 ## **Universal Controller**
 (Set up instructions can also be found as comments in each relevant module.)
@@ -26,7 +36,7 @@ This suite is designed to be used by non-technical as well as technical users an
 
 Example set up code from UniversalController.py:
 
-    '''STEP 1: Create an array for your robot's distance sensors '''
+    '''STEP 1: Create an array for your robot's distance sensors (can be found in documentation or robot window) '''
     distanceSensors = ['cs0', 'cs1', 'cs2', 'cs3']
     #Another example distance sensor array:
     #distanceSensors = ['ds0', 'ds1', 'ds2', 'ds3', 'ds4', 'ds5', 'ds6', 'ds7']
@@ -39,8 +49,8 @@ Example set up code from UniversalController.py:
     #optional - default is set to 90 seconds
     myController.evalRuntime = 100
 
-    '''STEP 4: Pass your distance sensor array to your controller - with max and minimum sensor range (can be found in documentation or robot window) '''
-    myController.setDistanceSensors(distanceSensors, 1000, 0)
+    '''STEP 4: Pass your distance sensor array to your controller '''
+    myController.setDistanceSensors(distanceSensors)
     #optional - set size of your environment, default is 1m x 1m
     #myController.setDimensions([0.75, 0.75])
     
