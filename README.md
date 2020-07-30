@@ -1,4 +1,5 @@
 
+
 # Webots-Universal-Controller-and-Reinforcement-Learning-Suite
 
 A universal supervisor controller and Reinforcement Learning suite for Webots ([https://www.cyberbotics.com/](https://www.cyberbotics.com/) ) that can be adapted to **any wheeled robot morphology** with ease. This is also a Reinforcement Learning suite that allows for easy experimentation and controller synthesis with the popular **CMA-ES** evolutionary algorithm, a **novelty search** augmented CMA-ES, and **MAP-Elites**, as well as both a fixed and recurrent neural network.
@@ -15,12 +16,19 @@ This suite is designed to be used by non-technical as well as technical users an
 
 ## **Prerequisites**
 
- 1. Install Webots: [https://cyberbotics.com/doc/guide/installation-procedure](https://cyberbotics.com/doc/guide/installation-procedure)
- 2. Install Python: [https://www.python.org/downloads/windows/](https://www.python.org/downloads/windows/)
- 3. Place the entire 'Universal Controller' folder inside of your 'Controllers' folder in your Webots projects directory (WebotsProjects>YourProject>controllers>UniversalController)
- 4. Basic understanding of how to set up a Webots Environment and change robot controllers: [https://cyberbotics.com/doc/guide/tutorial-1-your-first-simulation-in-webots](https://cyberbotics.com/doc/guide/tutorial-1-your-first-simulation-in-webots)
+ 1. Install [Webots](https://cyberbotics.com/doc/guide/installation-procedure)
+ 2. Install [Python](https://www.python.org/downloads/windows/): [https://www.python.org/downloads/windows/] (make sure supplementary libraries: NumPy, SciPy, Matplotlib, pickle are also installed)
+ 3. Install the [Deap library](https://deap.readthedocs.io/en/master/installation.html):  
+ 4. Place the entire 'UniversalController' folder inside of your 'Controllers' folder in your Webots projects directory (WebotsProjects>YourProject>controllers>UniversalController)
+ 5. Basic understanding of how to [set up a Webots Environment and change robot controllers](https://cyberbotics.com/doc/guide/tutorial-1-your-first-simulation-in-webots)
 
 
+## **Set up**
+
+ 1.  Once you have place the 'UniversalController' folder inside your controller folder, you can now select 'UniversalController' as a controller option for your robot
+ 2. Open up the UniversalController.py module in either the Webots editor or an IDE of your choice
+ 3. The only information you need access to is the names of the distance sensors built into your robot - this can be found via the [Webots documentation](https://cyberbotics.com/doc/guide/robots) on the available robots
+ 4. Follow the instructions below or the step by step comments in the file itself to begin experimentation with just a few lines of code, or simply edit the existing code or example code provided in the comments
 
 ## **Universal Controller**
 (Set up instructions can also be found as comments in each relevant module.)
