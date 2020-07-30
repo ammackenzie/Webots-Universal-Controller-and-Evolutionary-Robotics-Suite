@@ -29,6 +29,7 @@ This suite is designed to be used by non-technical as well as technical users an
  2. Open up the UniversalController.py module in either the Webots editor or an IDE of your choice
  3. The only information you need access to is the names of the distance sensors built into your robot - this can be found via the [Webots documentation](https://cyberbotics.com/doc/guide/robots) on the available robots
  4. Follow the instructions below or the step by step comments in the file itself to begin experimentation with just a few lines of code, or simply edit the existing code or example code provided in the comments
+ 5. Additional points: ensure the 'Supervisor' field in your robot node is set to TRUE to enable compatibility with a supervisor controller, ensure you are naming your robot and target location in their DEF fields in line with the instructions or passing your custom names to the UniversalController instance in line with below
 
 ## **Universal Controller**
 (Set up instructions can also be found as comments in each relevant module.)
