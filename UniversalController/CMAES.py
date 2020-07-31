@@ -58,7 +58,7 @@ class CMAES:
         hof = tools.HallOfFame(1)
         gen = 0
         solution = False
-        slnEval = -1 #default value re
+        slnEval = -1 #default value 
         #pop, logbook = algorithms.eaGenerateUpdate(toolbox, ngen=5, stats=stats, halloffame=hof)
         while gen < generations:
             print("Running evals for gen: " + str(gen))
@@ -66,14 +66,17 @@ class CMAES:
             self.population[:] = self.popBoundaries(self.toolbox.generate())
             # Evaluate the individuals
             fitnesses = []
+            
             for i in range(self.popSize):
-                fit, endpoint = self.toolbox.evaluate(self.population[i]) #potential issue here
-                #print("Fitness = " + str(fit))
+                #get the fitness and endpoint of each run
+                fit, endpoint = self.toolbox.evaluate(self.population[i])
                 fitnesses.append((fit,))
+                #check if the run was successful (fitness > solution threshold)
                 if fit >= self.solutionThreshold:
                     slnEval = (gen*self.popSize) + i + 1
                     print("Solution found! On eval: " + str(slnEval))
                     print(self.population[i])
+                    #if so, break
                     solution = True
                     break
                 
@@ -81,9 +84,9 @@ class CMAES:
             for ind, fit in zip(self.population, fitnesses):
                 ind.fitness.values = fit
             
+            #if a solution was found break algorithm loop and exit
             if solution:
-                print("break triggered")
-                
+                print("break triggered") 
                 break
 
             self.updateRecords(gen)
@@ -141,32 +144,43 @@ class NCMAES(CMAES):
         self.setUp()
     
     def getNFitnesses(self, fitnesses, endPoints):
+        #additional function to calculate the individual novelty scores of each population member
+        #store the list of endpoints in a class wide variable 
         self.tempPopEndPoints = endPoints
         noveltyScores = []
+        
+        #get each individual novelty score
         for i in range(len(endPoints)):
             noveltyScores.append(self.calculateNovelty(endPoints[i]))
-
+        
+        #reset tempPopEndPoints
         self.tempPopEndPoints[:] = []
         
         nFits = []
+        #function that calculates the final novelty score based on the ratio
         for fit, novelty in zip(fitnesses, noveltyScores):
+            #in case of 100% novelty ratio(1.0) final score = temp score
             nFits.append((self.noveltyRatio * novelty) + (1 - self.noveltyRatio) * fit)
-        
+            
         return nFits
     
     def calculateNovelty(self, endPoint):
-        
+        #calculate novelty for an individual in the population
         tempDistances = []
         closest = []
+        #check how close endpoint is to the other in its generation
         for i in range(len(self.tempPopEndPoints)):
             temp = np.linalg.norm(np.array(endPoint) - np.array(self.tempPopEndPoints[i]))
             tempDistances.append(temp)
         
+        #if archive has any members, check how close enpoint is to archive members also
         if len(self.archive) > 0:  
             for i in range(len(self.archive)):
                 tempDistances.append(np.linalg.norm(np.array(endPoint) - np.array(self.archive[i])))
-    
+        
+        #find K closest ones
         closest = np.sort(tempDistances)[:self.K]
+        #use to calculate the novelty score
         novelty = np.sum(closest)/self.K
         
         #add to archive check

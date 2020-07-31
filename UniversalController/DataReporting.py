@@ -149,7 +149,7 @@ class DataReporting:
         except:
             print("lowerLimit and/or upperLimit values do not match loaded data")
     
-    def displayAlgorithmBoxPlots(self, algorithmOne = "default", algorithmTwo = "default", algorithmThree = "default", algorithmFour = "default"):
+    def displayAlgorithmBoxPlots(self, title = "unspecififed", algorithmOne = "default", algorithmTwo = "default", algorithmThree = "default", algorithmFour = "default"):
         data = []
         xAxisData = [algorithmOne, algorithmTwo, algorithmThree, algorithmFour]
         xAxisLabel = "Algorithms"
@@ -159,8 +159,6 @@ class DataReporting:
                 if self.data[i][j] == -1: # default value - no solution was found on this run
                     self.data[i][j] = self.maxEvals
             data.append(self.data[i])
-            
-        title = "CMA-ES DataVisualisationandTesting on MiddleWall"
         
         self.generateBoxPlots(data, xAxisData, xAxisLabel, title)
         

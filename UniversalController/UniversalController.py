@@ -72,6 +72,7 @@ class UniversalController:
         self.getAndSetRobot(robotName)
         self.getAndSetTarget(targetName)
         self.evalRuntime = evalRuntime
+        
         #default to 1m x 1m space but can be edited directly or using method below
         self.maxDistance = 1.4142
         
@@ -107,6 +108,8 @@ class UniversalController:
         self.rightMotor = self.supervisor.getMotor('right wheel motor')
         self.leftMotor.setPosition(float('inf'))
         self.rightMotor.setPosition(float('inf'))
+        
+        #get the max velocity each motor is capable of and set the max velocity
         self.leftMotorMax = self.leftMotor.getMaxVelocity()
         self.rightMotorMax = self.rightMotor.getMaxVelocity()
         
@@ -119,17 +122,17 @@ class UniversalController:
     def getAndSetTarget(self, targetName):
         #get target location
         self.target = self.supervisor.getFromDef(targetName)#TARGET MUST BE NAMED IN DEF FIELD
+        #get and set the translation and location for retrieval when needed
         self.targetTrans = self.target.getField("translation")
         self.targetLocation = self.targetTrans.getSFVec3f()
         
     def setDimensions(self, spaceDimensions):
         #basic pythagorean calculation to find max distance possible in square space
         self.maxDistance = np.sqrt(spaceDimensions[0]**2 + spaceDimensions[1]**2)
-        print(self.maxDistance)
+        #print(self.maxDistance)
     
     def setDistanceSensors(self, distanceSensors):
-        #takes in array of strings - names of distance sensors and int of max possible reading
-        #optional minimum base reading if value above 0 - default is set to 0
+        #takes in array of strings - names of distance sensors
         self.distanceSensors = []
         self.minDSvalues = []
         self.DSValueRange = []
@@ -137,13 +140,16 @@ class UniversalController:
             #set and enable each sensor
             self.distanceSensors.append(self.supervisor.getDistanceSensor(distanceSensors[i]))
             self.distanceSensors[i].enable(self.TIME_STEP)
+            #get and store the min reading value of each sensor
             self.minDSvalues.append(self.distanceSensors[i].getMinValue())
+            #get and store the possible value range of each sensor
             self.DSValueRange.append(self.distanceSensors[i].getMaxValue() - self.minDSvalues[i])
         
-        print(self.DSValueRange)
+        #print(self.DSValueRange)
     
-    #get distance sensor values
+    
     def getDSValues(self):
+        #get distance sensor values
         values = []
         for i in range(len(self.distanceSensors)):
             value = self.distanceSensors[i].getValue()
@@ -156,6 +162,7 @@ class UniversalController:
             if value > 1.0:
                 value = 1.0
             values.append(value)
+        #return a list of the normalised sensor readings
         return values
 
     def computeMotors(self, DSValues):
@@ -228,12 +235,12 @@ class UniversalController:
 
 def main():
     '''STEP 1: Create an array for your robot's distance sensors (names can be found in documentation or robot window)'''
-    #distanceSensors = ['cs0', 'cs1', 'cs2', 'cs3']
+    distanceSensors = ['cs0', 'cs1', 'cs2', 'cs3']
     #Another example distance sensor array:
-    distanceSensors = ['ds0', 'ds1', 'ds2', 'ds3', 'ds4', 'ds5', 'ds6', 'ds7']
+    #distanceSensors = ['ds0', 'ds1', 'ds2', 'ds3', 'ds4', 'ds5', 'ds6', 'ds7']
     '''STEP 2: Create your Neural Network instance '''
-    #network = FixedNeuralNetwork(inputs = len(distanceSensors))
-    network = RecurrentNeuralNetwork(inputs = len(distanceSensors))
+    network = FixedNeuralNetwork(inputs = len(distanceSensors))
+    #network = RecurrentNeuralNetwork(inputs = len(distanceSensors))
     '''STEP 3: Create your controller instance (pass in the network) '''
     myController = UniversalController(network = network)
     #optional - default is set to 90 seconds
@@ -245,9 +252,9 @@ def main():
     #myController.setDimensions([0.75, 0.75])
     
     '''STEP 5: Create your algorithm instance '''
-    myEA = NCMAES(individualSize = network.solutionSize, evalFunction = myController.evaluateRobot, popSize = 50, sigma=1.0)
+    #myEA = CMAES(individualSize = network.solutionSize, evalFunction = myController.evaluateRobot, popSize = 50, sigma=1.0)
     #myEA = NCMAES(individualSize = network.solutionSize, evalFunction = myController.evaluateRobot, popSize = 50)
-    #myEA = MAPElites(network.solutionSize, myController.evaluateRobot)
+    myEA = MAPElites(network.solutionSize, myController.evaluateRobot)
     #OPTIONAL FOR MAP ELITES - LOAD SAVED MAP
     #myEA.loadMap(myEA.saveFile)
     
@@ -256,13 +263,15 @@ def main():
     
     ''' ****************************************************************** '''
     '''OPTIONAL Data reporting 1: Create an instance of the DataReporting class with your desired filename '''
-    myData = DataReporting("HEMISSON - NCMAES FULL TEST - EasyRace, 1.0N, RNN,  ")
+    myData = DataReporting("H-CMAES FULL TEST - EscapeRoom, 1.0N, FNN, ")
     
     '''OPTIONAL Data reporting 2: Pass your DataReporting instance to your controller '''
     myController.dataReporting = myData
     #myEA.runAlgorithm(generations = 200)
     '''OPTIONAL Data reporting 3: You can now run a recorded algorithm test '''
-    myController.algorithmTest(myEA, generations = 200, totalRuns = 10)
+    #myController.algorithmTest(myEA, generations = 200, totalRuns = 10)
+    myEA.saveFile = "EasyRace initial test"
+    myEA.runAlgorithm(2500)
 
     ''' ****************************************************************** '''
     '''OPTIONAL Sigma DataVisualisationandTesting (compatible with CMA-ES and NCMA-ES: You can also run Sigma testing with your chosen set up'''
@@ -273,7 +282,7 @@ def main():
     ''' ****************************************************************** '''
     '''OPTIONAL MANUAL INDIVIDUAL TESTING: You can also manually test an array of individual NN weights outside of any algorithm'''
     #individual solution for easy race with e-puck 1mx1m Solution found! On eval: 5607
-    #individual = [0.31031731300992854, -0.625717838677998, 0.6822099211950758, 0.35093854856430307, 1.0, 1.0, 0.0009309922329320541, -0.6667059438165372, 1.0, 0.7686658787840771, 0.9829338368777658, -1.0, 1.0, -0.03535018183798579, 0.9159827029809522, 1.0, -1.0, 0.9261351148297444, 0.9370941269429579, 0.09611646569838542, -0.8663865162282224, 1.0, -0.028251179649589866, 0.4061503955849184, -0.08250667681148824, -0.16746124377877428, 0.8178337947911983, -1.0, 0.3535909339816691, -1.0, 1.0, 1.0, -0.5656150166799535, 1.0, -0.16126224128955827, 1.0, -1.0, -0.29056750820102073, -0.8854209318538603, -1.0, 0.24688775452274014, -0.12487889493973085, 0.29071055270549007, -0.7651515341806517, -1.0, -1.0, -1.0, -0.31465437442427496, 0.2510766867974456, 0.5723782486620624, 0.9915336601264425, 0.3116319685494229, -1.0, -1.0, 0.7363206547132071, 0.05777593477124992, 0.19188887789494083, -0.20578177616681684, -0.8668258863884903, -0.6021788695367846, 0.5183740889343345, -1.0, 0.5500037481213166, 1.0, -1.0, -1.0, -0.44165738850252706, 0.43049036826016873, 0.6546771865727868, 0.4446467180913747, 0.39350581662002176, 0.9305053003498948, -0.4935008176214979, -0.06245987808487186, 0.6857409432069611, -0.452700509893487, 1.0, -1.0, -0.06842486278572765, -0.4570739508402518, -0.7228030774278107, 0.7618130695729538, 0.9686366678296847, 0.6605559838799274, 0.9137264735414016, -1.0, -0.8135467077346951, 0.7215679264886387, -1.0, -0.5613849269551666, 0.2853374933108166, -1.0, 1.0, -1.0, 0.6405666793785363, -0.2875108805645757, 0.5121031497618143, -0.14452536128233334, -0.437908361380963, -0.33012555615715544, 1.0, -0.21844058248302184, 0.16582261332465467, -0.005051709103707819, -0.9606691348098384, 0.5535601518474995, -0.5266974330838976, 1.0, -0.04729877975728782, 1.0, 0.05560175660985446, 0.682228882537105, 0.5994424338777845, 0.7824572446153184, -0.007316007687599012, 0.32040004920778414, -1.0, 0.5046873109456637, -1.0, 0.12600552901966905, -1.0, 1.0]
+    #individual = [0.8097185327742493, 1.0, 1.0, 1.0, -1.0, 1.0, 0.6659693031947151, 1.0, -0.7128410988986517, 0.7759888379310794, 0.6158819263907493, -0.5002185658710185, -0.4114915190302556, 0.3945365591958676, -1.0, -1.0, -0.5357976419238993, 0.686794799926385, 0.37363019778569717, -0.8632204600054812, 0.04448374706105757, -1.0, -0.14329702665397612, 1.0, -0.19933385055678499, 1.0, -0.03975008945789771, 0.5962539214037185, 0.27705248801127647, 0.7863774637788581, 0.6652600051159849, -0.01746922821459823, -0.36609418280610356, 0.8388881260495615, -0.9864790228200031, 0.21640543195173925, -0.9052129595083868, 0.6892293928669115, 0.19209996575514293, 0.12432272462382862, 0.4424098393060318, 1.0, 0.1993979077361407, 1.0, -0.4578395528108651, 0.7647578741175924, -0.5486539941695451, 0.39743749941275147, 0.1595009727468328, 0.5908481373295096, -0.4237835873171585, -0.840883947320976, -0.29148155790043917, 0.0857396929554975, 1.0, 0.08364818537527521, -0.14681859725698373, 1.0, -1.0, 0.9052605393152322, 0.4701886718422032, 1.0, 0.3166733018899936, 1.0, 0.3117077966988857, 1.0, 0.2641816170544849, -1.0, -0.19602972568359187, 0.8962542201946909, -1.0, 1.0, -0.28612124049645205, 0.18711138433588154, -1.0, -0.5591113644985205, -0.03062881835647905, -0.6285350575016602, -1.0, -1.0, 0.9487048419607723, -0.977797554211353, -0.5603219629469457, 0.7475512009902726, -0.7663071478431556, -1.0, 0.40344970445360867, 0.3699638906548576, 0.7268674163984049, 0.07247054687042216, -0.33889224607397994, -0.37444439067419233, -0.002868698310303198, 1.0, -0.009536072434543618, 1.0, 0.33814644785550724, 0.10667125415244208, 0.33107155369435026, -1.0, 0.043189588905676195, -0.7291550894602776, 0.973776656547831, -0.8012657905755017, 0.4071690477578325, 1.0, 0.6324462154841985, -0.7737891443111629, 0.13118806189133975, -0.3461497228646832, -0.3252008724006586, -1.0, -0.1515837402278993, -0.5424979069856092, 1.0, 0.6371076012849336, -1.0, 0.023976441245781906, 0.77068578760371, 0.7291333558530215, -0.9194146138934837, 1.0, 1.0, 1.0, -0.14040864516006357, 0.41416268073482193, 1.0, 0.4669196459489035, 1.0, 0.40772827297083725, 0.3986990273112243, -0.9608307977197296, 0.9763764300951379, -0.44879592053469497, -0.8391178182959773, -0.12609468450988576, -0.00853832005574566, -0.22646607877693642, -1.0, -0.9386439716407828, -0.5312671127172448, 1.0, -1.0, 0.09280516180767581, -0.8121358169332663, -0.5425053685622886, 1.0, 1.0, 0.5804424069295344, -0.8470867989060451, 1.0, 0.12588224952776308, 0.40064596955065274, -0.9515528994564351, -1.0, 0.14437987536310232, 1.0, 1.0, 1.0, -0.3999986542362194, -0.5669744633504175, -0.6133345970702229, -0.5984395950654815, 1.0, 0.008264524132969346, -1.0, -0.3471302679505146, -0.7592449623307239, -1.0, 1.0, 1.0, 1.0, 0.37877000088676116, 0.9433205124543965, -0.7740743104681928, -0.07446994213057241, 0.8392254737949248, -0.2406409162230742]    
     #fit = myController.evaluateRobot(individual)
 
 main()

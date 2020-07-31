@@ -22,7 +22,7 @@ class MAPElites():
     solutionThreshold = 0.95
     loadedState = False
     '''The below maxVeloity and maxAngularVelocity applies to the e-puck robot and will need to be manually changed for different morphologies'''
-    def __init__(self, individualSize, evalFunction, binCount = 5, maxVelocity = 0.125, maxAngularVelocity = 1.4):
+    def __init__(self, individualSize, evalFunction, binCount = 10, maxVelocity = 0.125, maxAngularVelocity = 1.4):
         self.bins = binCount
         self.evalFunction = evalFunction
         #max observed velocity -.125 m/s
@@ -34,7 +34,7 @@ class MAPElites():
         self.tournamentSize = 10
         self.searchSpace = np.zeros([self.bins,self.bins])
         self.savedMembers = np.zeros([self.bins,self.bins, self.memberSize])
-        self.saveFile = "EMAP-EasyRace 1.txt"
+        self.saveFile = "EMAP-EasyRace 1"
     
     def insert(self, behaviours, fitness, individual):
         c1 = np.digitize(behaviours[0], self.velocity)
@@ -65,18 +65,46 @@ class MAPElites():
     
         return individual
     
+    def checkEmptyAdjascent(self, member):
+        #check number of empty bins next to member
+        emptyCount = 0
+        for i in range(member[0]-1, member[0]+2):
+            for j in range(member[1]-1, member[1]+2):
+                #ensure we are not checking member or index outside of searchspace
+                if [i, j] == member or i < 0 or j < 0:
+                    pass
+                else:
+                    if self.searchSpace[i][j] == 0:
+                        emptyCount += 1
+                    else:
+                        pass
+        return emptyCount
+        
+        
     def getRandomMember(self):
         c1 = np.random.randint(0, self.bins)
         c2 = np.random.randint(0, self.bins)
         while np.max(self.savedMembers[c1][c2]) == 0 or np.min(self.savedMembers[c1][c2]) == 0 :
             c1 = np.random.randint(0, self.bins)
             c2 = np.random.randint(0, self.bins)
+        
         return self.savedMembers[c1][c2]
     
+    def tournamentSelect(self):
+        bestMemberID = self.getRandomID()
+        mostEmptyBins = self.checkEmptyAdjascent(bestMemberID)
+        for round in range(self.tournamentSize-1):
+            tempMemberID = self.getRandomID()
+            tempEmptyBins = self.checkEmptyAdjascent(tempMemberID)
+            if tempEmptyBins > mostEmptyBins:
+                mostEmptyBins = tempEmptyBins
+                bestMemberID = tempMemberID
+        
+        return self.savedMembers[bestMemberID[0]][bestMemberID[1]]
     def getRandomID(self):
         c1 = np.random.randint(0, self.bins)
         c2 = np.random.randint(0, self.bins)
-        while np.max(self.savedMembers[c1][c2]) == 0:
+        while np.max(self.searchSpace[c1][c2]) == 0:
             c1 = np.random.randint(0, self.bins)
             c2 = np.random.randint(0, self.bins)
         return [c1, c2]
@@ -88,12 +116,11 @@ class MAPElites():
 
 #         date_time = date_time + ".txt"
 #         date_time = "MAP - MiddleWall -  " + date_time
-        f = open(self.saveFile,'wb')
+        f = open(self.saveFile + ".txt",'wb')
         pickle.dump(zip(self.searchSpace, self.savedMembers), f)
         f.close()
         self.saveLogData()
         
-    
     def saveLogData(self):
         dt = datetime.datetime.now()
         date_time = dt.strftime("%m/%d/%Y, %H:%M:%S")
@@ -130,7 +157,7 @@ class MAPElites():
             if gen < self.initialPopSize:
                 newMember = self.newMember()
             else:
-                newMember[:] = self.getRandomMember()
+                newMember[:] = self.tournamentSelect()
                 newMember[:] = self.gaussianMutation(newMember)
             
             averageV, averageAV, fitness = self.evalFunction(newMember, True)

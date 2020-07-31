@@ -28,7 +28,6 @@ class FixedNeuralNetwork():
     
     def forwardPass(self, inputs):
         #forward pass - preactivation(preA) and activation(H) - standard NN notation
-        
         #create arrays to hold upcoming preactivation totals acting on the neurons
         preA = np.zeros((self.hiddenNeurons, self.inputs))
         
@@ -41,13 +40,15 @@ class FixedNeuralNetwork():
         #array for final outputs from output neurons
         finalOutputs = np.zeros(self.outputNeurons, dtype=float)
         
+        #calculate the output of each neuron in the hidden layer
         for n in range(self.hiddenNeurons):
             for j in range(self.inputs):
                 preA[n][j] = inputs[j] * self.weightsOne[n][j]
     
             hOut = self.sigmoid(np.sum(preA[n]) + self.biasesOne[n])
             H[n] = hOut
-
+        
+        #calculate the output of each neuron in the output layer
         for n in range(self.outputNeurons):
             for j in range(len(H)):
                 preA2 [n][j] = H[j] * self.weightsTwo[n][j]
@@ -58,15 +59,18 @@ class FixedNeuralNetwork():
 
     #decode an individual passed from an evolutionary algorithm
     def decodeEA(self, individual):
+        #overall index keeps track of decoding progress
         index = 0
-
+        
+        #decode the hidden neuron weights and biases
         for i in range(self.hiddenNeurons):
             for j in range(self.inputs):
                 self.weightsOne[i][j] = individual[index]
                 index +=1
             self.biasesOne[i] = individual[index]
             index += 1
-
+        
+        #decode the weights and biases for the output neurons
         for k in range(self.outputNeurons):
             for l in range(self.hiddenNeurons):
                 self.weightsTwo[k][l] = individual[index]
