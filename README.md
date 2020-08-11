@@ -1,10 +1,10 @@
 
 
-# Webots-Universal-Controller-and-Reinforcement-Learning-Suite
+# Webots-Universal-Controller-and-Evolutionary-Robotics-Suite
 
-A universal supervisor controller and Reinforcement Learning suite for Webots ([https://www.cyberbotics.com/](https://www.cyberbotics.com/) ) that can be adapted to **any wheeled robot morphology** with ease. This is also a Reinforcement Learning suite that allows for easy experimentation and controller synthesis with the popular **CMA-ES** evolutionary algorithm, a **novelty search** augmented CMA-ES, and **MAP-Elites**, as well as both a fixed and recurrent neural network.
+A universal supervisor controller and Evolutionary Robotics suite for Webots ([https://www.cyberbotics.com/](https://www.cyberbotics.com/) ) that can be adapted to **any wheeled robot morphology** with ease. This is also an Evolutionary Robotics suite that allows for easy experimentation and controller synthesis with the popular **CMA-ES** evolutionary algorithm, a **novelty search** augmented CMA-ES, and **MAP-Elites**, as well as both a fixed and recurrent neural network.
 
-This suite allows the user to pick a desired configuration of Neural Network and Algorithm to carry out Reinforcement Learning with a robot of their choice. 
+This suite allows the user to pick a desired configuration of Neural Network and Evolutionary Algorithm to carry out learning tasks with a robot of their choice. 
 
 This is a **work in progress** and will continued to be refined, streamlined and expanded.
 
@@ -35,7 +35,7 @@ This suite is designed to be used by non-technical as well as technical users an
 (Set up instructions can also be found as comments in each relevant module.)
 *Features*
  - Default configuration is for a two wheeled robotic agent but can be easily expanded - instructions inside module next to relevant methods
- - Within a few lines of code a non-technical user can carry out Reinforcement Learning/Controller synthesis with a robotic agent and environment of their choice
+ - Within a few lines of code a non-technical user can carry out complete Evolutionary Robotics expeirmentation with a robotic agent and environment of their choice
  - Controller automatically:
 	 - Enables and registers all desired distance sensors and motors
 	 - Registers robot and target starting position, and resets all robot physics and translation in-between runs
