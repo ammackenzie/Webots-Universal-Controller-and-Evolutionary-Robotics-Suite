@@ -17,7 +17,7 @@ This suite is designed to be used by non-technical as well as technical users an
 ## **Prerequisites**
 
  1. Install [Webots](https://cyberbotics.com/doc/guide/installation-procedure)
- 2. Install [Python 3.7](https://www.python.org/downloads/windows/): [https://www.python.org/downloads/windows/] (make sure supplementary libraries: NumPy, SciPy, Matplotlib, pickle are also installed)
+ 2. Install [Python 3.7](https://www.python.org/downloads/windows/) (make sure supplementary libraries: NumPy, SciPy, Matplotlib, pickle are also installed)
  3. Install the [Deap library](https://deap.readthedocs.io/en/master/installation.html):  
  4. Place the entire 'UniversalController' folder inside of your 'Controllers' folder in your Webots projects directory (WebotsProjects>YourProject>controllers>UniversalController)
  5. Basic understanding of how to [set up a Webots Environment and change robot controllers](https://cyberbotics.com/doc/guide/tutorial-1-your-first-simulation-in-webots)
