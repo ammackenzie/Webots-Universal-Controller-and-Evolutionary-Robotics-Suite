@@ -19,15 +19,15 @@ that other algorithms are failing to find.
 
 This implementation is set to a relatively small number of bins or 'cells' and uses average velocity and average angular velocity as behavioural descriptors
 
-At the end of each run, a datetime stamped map is saved with the saveFile variable as a name which can be loaded and used in future runs
+At the end of each run, a datetime stamped map is saved with the save_file variable as a name which can be loaded and used in future runs
 A separate file will also be saved/updated with a data log detailing the run details and parameters to help keep track of the maps development
 '''
 
 
 class MAPElites():
     np.random.seed()
-    solutionThreshold = 0.95
-    loadedState = False
+    solution_threshold = 0.95
+    loaded_state = False
     '''The below maxVeloity and maxAngularVelocity applies to the e-puck robot and will need to be manually changed for different morphologies'''
     '''Limitation of Webots - can't directly access what the maximum angular velocity is for a given robot - has to be determined manually through testing in simulation '''
     
@@ -36,45 +36,45 @@ class MAPElites():
     #maxdfs in middlewall = 0.8942810
     #maxdfs in escape room 0.63008 (already accounted for)
     
-    heatmapTitle = "undefined"
-    yAxisLabel = "Average Velocity (m/s)"
+    heatmap_title = "undefined"
+    y_axis_label = "Average Velocity (m/s)"
     
-    def __init__(self, individualSize, evalFunction, binCount = 10, tournamentSize = 5, maxVelocity = 0.125, maxDistance = 1.2):
-        self.bins = binCount
-        self.evalFunction = evalFunction
+    def __init__(self, individual_size, eval_function, bin_count = 10, tournament_size = 5, max_velocity = 0.125, max_distance = 1.2):
+        self.bins = bin_count
+        self.eval_function = eval_function
         #max observed velocity -.125 m/s
-        self.velocity = [round(e * (maxVelocity/self.bins), 3) for e in range(1, (self.bins + 1))]
+        self.velocity = [round(e * (max_velocity/self.bins), 3) for e in range(1, (self.bins + 1))]
         #max observed angular velocity 2.1 rad/s
-        self.distanceFromStart = [round(e * (maxDistance/self.bins), 3) for e in range(1, (self.bins + 1))]
-        self.memberSize = individualSize
-        self.mutationRate = 0.1
-        self.tournamentSize = tournamentSize
-        self.searchSpace = np.zeros([self.bins,self.bins])
-        self.savedMembers = np.zeros([self.bins,self.bins, self.memberSize])
+        self.distance_from_start = [round(e * (max_distance/self.bins), 3) for e in range(1, (self.bins + 1))]
+        self.member_size = individual_size
+        self.mutation_rate = 0.1
+        self.tournament_size = tournament_size
+        self.search_space = np.zeros([self.bins,self.bins])
+        self.saved_members = np.zeros([self.bins,self.bins, self.member_size])
         #saves any successful solutions in format: [individual, coordinates, eval]
         self.successes = []
-        self.saveFile = "EMAP - Unspecified"
+        self.save_file = "EMAP - Unspecified"
     
     def insert(self, behaviours, fitness, individual):
         c1 = np.digitize(behaviours[0], self.velocity)
-        c2 = np.digitize(behaviours[1], self.distanceFromStart)
+        c2 = np.digitize(behaviours[1], self.distance_from_start)
         
         #finds the cell the individual belongs to, keeps if better fitness
-        if self.searchSpace[c1][c2] < fitness:
-            self.searchSpace[c1][c2] = fitness
-            self.savedMembers[c1][c2][:] = individual
+        if self.search_space[c1][c2] < fitness:
+            self.search_space[c1][c2] = fitness
+            self.saved_members[c1][c2][:] = individual
     
         return [c1, c2]
-    def newMember(self):
-#         newMember = np.zeros(self.memberSize)
-#         for i in range(self.memberSize):
-#             newMember[i] = np.random.uniform(-1, 1)
-        newMember = np.random.uniform(-1, 1, self.memberSize)
-        return newMember
+    def new_member(self):
+#         new_member = np.zeros(self.member_size)
+#         for i in range(self.member_size):
+#             new_member[i] = np.random.uniform(-1, 1)
+        new_member = np.random.uniform(-1, 1, self.member_size)
+        return new_member
     
-    def gaussianMutation(self, individual):
+    def gaussian_mutation(self, individual):
         #create boolean array determining whether to mutate a given index or not
-        mutate = np.random.uniform(0, 1, individual.shape) < self.mutationRate
+        mutate = np.random.uniform(0, 1, individual.shape) < self.mutation_rate
    
         for i in range(len(individual)):
             if mutate[i]:
@@ -86,123 +86,124 @@ class MAPElites():
     
         return individual
     
-    def checkEmptyAdjascent(self, member):
+    def check_empty_adjascent(self, member):
         #check number of empty bins next to member
-        emptyCount = 0
+        empty_count = 0
         for i in range(member[0]-1, member[0]+2):
             for j in range(member[1]-1, member[1]+2):
-                #ensure we are not checking member or index outside of searchspace
+                #ensure we are not checking member or index outside of search_space
                 if [i, j] == member or i < 0 or j < 0 or i >= self.bins or j >= self.bins:
                     pass
                 else:
-                    if self.searchSpace[i][j] == 0:
-                        emptyCount += 1
+                    if self.search_space[i][j] == 0:
+                        empty_count += 1
                     else:
                         pass
-        return emptyCount
+        return empty_count
         
-    def combineLoadedMap(self, filename):
+    def combine_loaded_map(self, filename):
         #for use when plotting combined heatmap from multiple run results
         f = open(filename,'rb')
         data = list(zip(*(pickle.load(f))))
         for i in range(self.bins):
             for j in range(self.bins):
-                if data[0][i][j] > self.searchSpace[i][j]:
-                    self.searchSpace[i][j] = data[0][i][j]
+                if data[0][i][j] > self.search_space[i][j]:
+                    self.search_space[i][j] = data[0][i][j]
                     
-    def getRandomMember(self):
+    def get_random_member(self):
         c1 = np.random.randint(0, self.bins)
         c2 = np.random.randint(0, self.bins)
-        while np.max(self.savedMembers[c1][c2]) == 0 or np.min(self.savedMembers[c1][c2]) == 0 :
+        while np.max(self.saved_members[c1][c2]) == 0 or np.min(self.saved_members[c1][c2]) == 0 :
             c1 = np.random.randint(0, self.bins)
             c2 = np.random.randint(0, self.bins)
         
-        return self.savedMembers[c1][c2]
+        return self.saved_members[c1][c2]
     
-    def tournamentSelect(self):
+    def tournament_select(self):
         #select first initial random choice and set to best choice so far
-        bestMemberID = self.getRandomID()
-        mostEmptyBins = self.checkEmptyAdjascent(bestMemberID)
+        best_member_ID = self.get_random_ID()
+        most_empty_bins = self.check_empty_adjascent(best_member_ID)
         
-        for round in range(self.tournamentSize-1):
+        for round in range(self.tournament_size-1):
             #select new random member
-            tempMemberID = self.getRandomID()
-            tempEmptyBins = self.checkEmptyAdjascent(tempMemberID)
+            temp_member_ID = self.get_random_ID()
+            temp_empty_bins = self.check_empty_adjascent(temp_member_ID)
             #if new choice has more empty nearby cells, set as best choice
-            if tempEmptyBins > mostEmptyBins:
-                mostEmptyBins = tempEmptyBins
-                bestMemberID = tempMemberID
+            if temp_empty_bins > most_empty_bins:
+                most_empty_bins = temp_empty_bins
+                best_member_ID = temp_member_ID
         #retrieve the chosen member itself from the saved members array
-        return self.savedMembers[bestMemberID[0]][bestMemberID[1]]
-    def getRandomID(self):
+        return self.saved_members[best_member_ID[0]][best_member_ID[1]]
+    
+    def get_random_ID(self):
         c1 = np.random.randint(0, self.bins)
         c2 = np.random.randint(0, self.bins)
-        while np.max(self.searchSpace[c1][c2]) == 0:
+        while np.max(self.search_space[c1][c2]) == 0:
             c1 = np.random.randint(0, self.bins)
             c2 = np.random.randint(0, self.bins)
         return [c1, c2]
 
-    def saveMap(self):
+    def save_map(self):
         rawDT = datetime.datetime.now()
         date_time = rawDT.strftime("%m-%d-%Y, %H-%M-%S") #make a filename compatible datetime string
-        parameters = " " + str(self.tournamentSize) + "TS, " + str(self.bins) + "BC, " + str(self.generations) + "gens" 
-        self.saveFile = self.saveFile + parameters + date_time
-        f = open(self.saveFile + ".txt",'wb')
-        pickle.dump(zip(self.searchSpace, self.savedMembers), f)
+        parameters = " " + str(self.tournament_size) + "TS, " + str(self.bins) + "BC, " + str(self.generations) + "gens" 
+        self.save_file = self.save_file + parameters + date_time
+        f = open(self.save_file + ".txt",'wb')
+        pickle.dump(zip(self.search_space, self.saved_members), f)
         f.close()
-        self.saveLogData()
+        self.save_log_data()
 #         if len(self.successes) > 0:
 #             self.saveSuccesses()
             
     def saveSuccesses(self):
-        f = open(self.saveFile + " SUCCESSES.txt",'wb')
+        f = open(self.save_file + " SUCCESSES.txt",'wb')
         pickle.dump(self.successes, f)
         f.close()
         
-    def saveLogData(self):
+    def save_log_data(self):
         dt = datetime.datetime.now()
         date_time = dt.strftime("%m/%d/%Y, %H:%M:%S")
-        infoString = "Following data added on: " + date_time
-        infoString += "\nBin count: " + str(self.bins)
-        infoString += "\nGenerations: " + str(self.generations)
-        infoString += "\nInitial Pop Size: " + str(self.initialPopSize)
-        infoString += "\nMutationRate: " + str(self.mutationRate)
-        infoString += "\nTournamentSize: " + str(self.tournamentSize)
-        infoString += "\nSuccesses found: " + str(len(self.successes))
-        infoString += "\nSuccessful cells: " + str(self.solutionCount)
+        info_string = "Following data added on: " + date_time
+        info_string += "\nBin count: " + str(self.bins)
+        info_string += "\nGenerations: " + str(self.generations)
+        info_string += "\nInitial Pop Size: " + str(self.initial_pop_size)
+        info_string += "\nMutationRate: " + str(self.mutation_rate)
+        info_string += "\nTournamentSize: " + str(self.tournament_size)
+        info_string += "\nSuccesses found: " + str(len(self.successes))
+        info_string += "\nSuccessful cells: " + str(self.solution_count)
         if len(self.successes) > 0:
-            infoString += "\nFirst successful solution found on eval: " + str(self.successes[0][2])
-        infoString += "\n____________________________________________________"
-        tf = open(self.saveFile + " DataLog.txt", 'w')
-        tf.write(infoString)
+            info_string += "\nFirst successful solution found on eval: " + str(self.successes[0][2])
+        info_string += "\n____________________________________________________"
+        tf = open(self.save_file + " DataLog.txt", 'w')
+        tf.write(info_string)
         tf.close()
     
-    def loadMap(self, saveFile):
-        f = open(saveFile,'rb')
+    def load_map(self, save_file):
+        f = open(save_file,'rb')
         data = list(zip(*(pickle.load(f))))
         for i in range(self.bins):
             for j in range(self.bins):
-                self.searchSpace[i][j] = data[0][i][j]
-                self.savedMembers[i][j] = data[1][i][j]
-        self.loadedState = True
+                self.search_space[i][j] = data[0][i][j]
+                self.saved_members[i][j] = data[1][i][j]
+        self.loaded_state = True
 
     
     def refresh(self):
-        self.searchSpace[:] = np.zeros([self.bins,self.bins])
-        self.savedMembers[:] = np.zeros([self.bins,self.bins, self.memberSize])
+        self.search_space[:] = np.zeros([self.bins,self.bins])
+        self.saved_members[:] = np.zeros([self.bins,self.bins, self.member_size])
         self.successes[:] = []
     #minimum effective generations is 10
-    def runAlgorithm(self, generations):
+    def run_algorithm(self, generations):
         
         np.random.seed()
         print("Running MAP-Elites evaluation for " + str(generations) + " generations with a bin count of: " + str(self.bins))
         
-        #use the first 10% of the total generations to generate initial cell entries or bincount *50 - whatever smaller
-        self.initialPopSize  = round(generations/10)
+        #use the first 10% of the total generations to generate initial cell entries or bin_count *50 - whatever smaller
+        self.initial_pop_size  = round(generations/10)
         
         #check if map is already loaded
-        if self.loadedState:
-            self.initialPopSize = 0
+        if self.loaded_state:
+            self.initial_pop_size = 0
         else:
             #if not its a new run so refresh class vairables
             self.refresh()
@@ -211,61 +212,61 @@ class MAPElites():
         gen = 0
         while gen < generations:
             #create a new empty array of correct size
-            newMember = np.zeros(self.memberSize)
+            new_member = np.zeros(self.member_size)
             #if we are still running the initial batch, randomly create a new member
-            if gen < self.initialPopSize:
-                newMember[:] = self.newMember()
+            if gen < self.initial_pop_size:
+                new_member[:] = self.new_member()
             else:
                 #otherwise use tournament select to chose a cell to mutate
-                newMember[:] = self.tournamentSelect()
-                newMember[:] = self.gaussianMutation(newMember)
+                new_member[:] = self.tournament_select()
+                new_member[:] = self.gaussian_mutation(new_member)
             
             #get the behavioural description of the new member through evaluation
-            averageV, distanceFS, fitness = self.evalFunction(newMember, True)
+            average_V, distance_FS, fitness = self.eval_function(new_member, True)
             
-            behaviours = [averageV, distanceFS]
+            behaviours = [average_V, distance_FS]
             ##pass to insert function which determines whether to keep or discard
-            coordinates = self.insert(behaviours, fitness, newMember)
+            coordinates = self.insert(behaviours, fitness, new_member)
             
             #check if it's a successful solution
-            if fitness > self.solutionThreshold:
-                self.successes.append([newMember, coordinates, gen])
+            if fitness > self.solution_threshold:
+                self.successes.append([new_member, coordinates, gen])
                 print("Solution found! On eval: " + str(gen) + ", at map coordinate: " + str(coordinates[0]) + "," + str(coordinates[1]))
                 break
-            #every 100 iterations, prints the searchspace to the console for monitoring
+            #every 100 iterations, prints the search_space to the console for monitoring
             if gen % 100 == 0 and gen > 0:
                 print(gen)
-                print(self.searchSpace)
+                print(self.search_space)
             gen += 1
         
         #visualise the map and the solutions found in the console
-        self.visualiseMap()
-        self.saveMap()
+        self.visualise_map()
+        self.save_map()
         return gen
         
         
-    def visualiseMap(self):
-        self.solutionCount = 0
+    def visualise_map(self):
+        self.solution_count = 0
         solutions = []
-        solutionSpace = np.zeros([self.bins,self.bins])
+        solution_space = np.zeros([self.bins,self.bins])
         for i in range(self.bins):
             for j in range(self.bins):
-                if self.searchSpace[i][j] > self.solutionThreshold:
-                    self.solutionCount += 1
-                    solutionSpace[i][j] = 1
-                    solutions.append(self.savedMembers[i][j])
+                if self.search_space[i][j] > self.solution_threshold:
+                    self.solution_count += 1
+                    solution_space[i][j] = 1
+                    solutions.append(self.saved_members[i][j])
         
         print("total solutions found: ")
-        print(self.solutionCount)
+        print(self.solution_count)
         print("solution space:")
-        print(solutionSpace)
-        print(self.searchSpace)
+        print(solution_space)
+        print(self.search_space)
         return solutions
     
-    def generateHeatmap(self):
-        df = pd.DataFrame(self.searchSpace)
+    def generate_heatmap(self):
+        df = pd.DataFrame(self.search_space)
         ax = sns.heatmap(df)
-        ax.set_xticklabels(self.distanceFromStart,
+        ax.set_xticklabels(self.distance_from_start,
                                     rotation=0, fontsize=12)
         ax.set_yticklabels(self.velocity,rotation=0, fontsize=12)
         ax.set_xlabel("Distance from Start (m)", fontsize=14)

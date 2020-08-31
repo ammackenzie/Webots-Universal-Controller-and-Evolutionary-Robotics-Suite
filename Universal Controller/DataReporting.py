@@ -18,122 +18,122 @@ DataRerportng class can also be used to load and visualise run data via box plot
 '''
 class DataReporting:
     
-    fullResults = []
+    full_results = []
     data = []
-    maxEvals = 100 
-    yTicks = 10
-    graphPadding = 10
-    xAxisLabel = ""
-    yAxisLabel = ""
-    blueLabel = ""
-    tanLabel = ""
-    def __init__(self, saveFileName = "undefined"):
-        self.saveFileName = saveFileName    
-        self.loadFileName = saveFileName
-        self.sigmaRuns = 10
-        self.sigmaIncrements = 0.1
-        self.sigmaGenerations = 5
+    max_evals = 100 
+    y_ticks = 10
+    graph_padding = 10
+    x_axis_label = ""
+    y_axis_label = ""
+    blue_label = ""
+    tan_label = ""
+    def __init__(self, save_file_name = "undefined"):
+        self.save_file_name = save_file_name    
+        self.load_file_name = save_file_name
+        self.sigma_runs = 10
+        self.sigma_increments = 0.1
+        self.sigma_generations = 5
         
-    def saveTestResults(self):
-        #save fullResults in a time and parameters stamped text file via pickle
-        parameters = " - " + str(self.maxEvals) + "ME, " + str(self.popSize) + "PS, " + str(self.totalRuns) + "TR, "
+    def save_test_results(self):
+        #save full_results in a time and parameters stamped text file via pickle
+        parameters = " - " + str(self.max_evals) + "ME, " + str(self.pop_size) + "PS, " + str(self.total_runs) + "TR, "
         rawDT = datetime.datetime.now()
         date_time = rawDT.strftime("%m-%d-%Y, %H-%M-%S") #make a filename compatible datetime string
         date_time = parameters + " " + date_time + ".txt"
-        date_time = self.saveFileName + date_time
+        date_time = self.save_file_name + date_time
         file = open(date_time,'wb')
-        pickle.dump(self.fullResults, file)
+        pickle.dump(self.full_results, file)
         file.close()
         
-        print(self.fullResults)
+        print(self.full_results)
     
-    def saveMapElitesTestResults(self):
-        #save fullResults in a time and parameters stamped text file via pickle
-        parameters = " " + str(self.algorithm.tournamentSize) + "TS, " + str(self.algorithm.bins) + "BC, " + str(self.algorithm.generations) + "gens" 
+    def save_map_elites_test_results(self):
+        #save full_results in a time and parameters stamped text file via pickle
+        parameters = " " + str(self.algorithm.tournament_size) + "TS, " + str(self.algorithm.bins) + "BC, " + str(self.algorithm.generations) + "gens" 
         rawDT = datetime.datetime.now()
         date_time = rawDT.strftime("%m-%d-%Y, %H-%M-%S") #make a filename compatible datetime string
         date_time = parameters + " " + date_time + ".txt"
-        date_time = self.saveFileName + date_time
+        date_time = self.save_file_name + date_time
         tf = open(date_time, 'w')
-        tf.write(str(self.fullResults))
+        tf.write(str(self.full_results))
         tf.close()
-        print(self.fullResults)
+        print(self.full_results)
     
-    def saveSigmaTestResults(self):
-        #save fullResults in a timestamped text file via pickle
-        parameters = " - " + str(self.maxEvals) + "ME, " + str(self.popSize) + "PS, " + str(self.sigmaRuns) + "SR, " + str(self.lowerLimit) + "-" + str(self.upperLimit)
+    def save_sigma_test_results(self):
+        #save full_results in a timestamped text file via pickle
+        parameters = " - " + str(self.max_evals) + "ME, " + str(self.pop_size) + "PS, " + str(self.sigma_runs) + "SR, " + str(self.lower_limit) + "-" + str(self.upper_limit)
         rawDT = datetime.datetime.now()
         date_time = rawDT.strftime("%m-%d-%Y, %H-%M-%S") #make a filename compatible datetime string
         date_time = parameters + ", " + date_time + ".txt"
-        date_time = self.saveFileName + date_time
+        date_time = self.save_file_name + date_time
         
         file = open(date_time,'wb')
-        pickle.dump(self.fullResults, file)
+        pickle.dump(self.full_results, file)
         file.close()
         
-        print(self.fullResults)
+        print(self.full_results)
     
         
-    def sigmaTest(self, myEA, upperLimit, lowerLimit):
+    def sigmaTest(self, my_EA, upper_limit, lower_limit):
         #standard exmaple is for each 0.1 increment in sigma range 0.1 - 1.0
-        self.maxEvals = self.sigmaGenerations * myEA.popSize # update max evals count (num of evals given to each sigma increment during each run)
-        self.popSize = myEA.popSize
-        self.upperLimit = upperLimit
-        self.lowerLimit = lowerLimit
-        for sig in (round(i * self.sigmaIncrements, 1) for i in range(round(self.lowerLimit*10), round(self.upperLimit*10)+1)):
-            for reps in range(self.sigmaRuns):
+        self.max_evals = self.sigma_generations * my_EA.pop_size # update max evals count (num of evals given to each sigma increment during each run)
+        self.pop_size = my_EA.pop_size
+        self.upper_limit = upper_limit
+        self.lower_limit = lower_limit
+        for sig in (round(i * self.sigma_increments, 1) for i in range(round(self.lower_limit*10), round(self.upper_limit*10)+1)):
+            for reps in range(self.sigma_runs):
                 print("DataVisualisationandTesting for Sigma: " + str(sig) + ", current run: " + str(reps + 1))
-                self.fullResults.append((sig, myEA.runAlgorithm(self.sigmaGenerations)))
+                self.full_results.append((sig, my_EA.run_algorithm(self.sigma_generations)))
         
-        self.saveSigmaTestResults()
+        self.save_sigma_test_results()
         
-    def algorithmTest(self, myEA, generations, totalRuns, mapelites = False):
-        self.algorithm = myEA
+    def algorithm_test(self, my_EA, generations, total_runs, map_elites = False):
+        self.algorithm = my_EA
         self.generations = generations
-        self.totalRuns = totalRuns
-        if mapelites:
-            self.maxEvals = generations
-            myEA.saveFile = self.saveFileName
+        self.total_runs = total_runs
+        if map_elites:
+            self.max_evals = generations
+            my_EA.save_file = self.save_file_name
         else:
-            self.popSize = myEA.popSize
-            self.maxEvals = self.generations * self.popSize
-        for run in range(totalRuns):
+            self.pop_size = my_EA.pop_size
+            self.max_evals = self.generations * self.pop_size
+        for run in range(total_runs):
             print("Run: " + str(run))
-            self.fullResults.append(myEA.runAlgorithm(self.generations))
-        if mapelites:
-            self.saveMapElitesTestResults()
+            self.full_results.append(my_EA.run_algorithm(self.generations))
+        if map_elites:
+            self.save_map_elites_test_results()
         else:
-            self.saveTestResults()
+            self.save_test_results()
     
     
-    def controlGroupTest(self, individualSize, evalFunction, generations = 10000, totalRuns = 1):
+    def control_group_test(self, individual_size, eval_function, generations = 10000, total_runs = 1):
         self.generations = generations
-        self.individualSize = individualSize
-        self.totalRuns = totalRuns
-        self.evalFunc = evalFunction
-        self.maxEvals = self.generations 
-        for run in range(totalRuns):
+        self.individual_size = individual_size
+        self.total_runs = total_runs
+        self.eval_func = eval_function
+        self.max_evals = self.generations 
+        for run in range(total_runs):
             print("Running control group test for " + str(self.generations) + " generations. Run: " + str(run))
-            self.fullResults.append(self.runControlGroup())
+            self.full_results.append(self.run_control_group())
         
-        parameters = " - " + str(self.maxEvals) + "ME, " + str(self.totalRuns) + "TR, "
+        parameters = " - " + str(self.max_evals) + "ME, " + str(self.total_runs) + "TR, "
         rawDT = datetime.datetime.now()
         date_time = rawDT.strftime("%m-%d-%Y, %H-%M-%S") #make a filename compatible datetime string
         date_time = parameters + " " + date_time + ".txt"
-        date_time = self.saveFileName + date_time
+        date_time = self.save_file_name + date_time
         tf = open(date_time, 'w')
-        tf.write(str(self.fullResults))
+        tf.write(str(self.full_results))
         tf.close()
         
-        print(self.fullResults)
+        print(self.full_results)
             
          
-    def runControlGroup(self):
-        member = np.zeros(self.individualSize)
+    def run_control_group(self):
+        member = np.zeros(self.individual_size)
         gen = 0
         while gen < self.generations:
-            member[:] = np.random.uniform(-1, 1, self.individualSize)
-            fit, endpoint = self.evalFunc(member)
+            member[:] = np.random.uniform(-1, 1, self.individual_size)
+            fit, endpoint = self.eval_func(member)
             if fit > 0.95: #solution threshold
                 print("Solution found! On evaluation: " + str(gen))
                 print(member)
@@ -141,16 +141,16 @@ class DataReporting:
             gen += 1
         
         return gen
-    def loadData(self, loadFileName = "default"):
-        if loadFileName == "default":
-            file = open(self.loadFileName, 'rb')
+    def load_data(self, load_file_name = "default"):
+        if load_file_name == "default":
+            file = open(self.load_file_name, 'rb')
         else:
-            self.loadFileName = loadFileName
-            file = open(loadFileName,'rb')
+            self.load_file_name = load_file_name
+            file = open(load_file_name,'rb')
 
         self.data.append(pickle.load(file))
     
-    def displayLineGraph(self, title = "undefined"):
+    def display_line_graph(self, title = "undefined"):
         #graphData = []
         rejections = []
 #         successes = []
@@ -164,7 +164,7 @@ class DataReporting:
         try:
             #for each sigma and result tuple in self.data, creates a list that is as long as the count of successful runs 
             #that holds the associated evaluation count of that run
-            for sig in (round(i * self.sigmaIncrements, 1) for i in range(round(self.lowerLimit*10), round(self.upperLimit*10)+1)):
+            for sig in (round(i * self.sigma_increments, 1) for i in range(round(self.lower_limit*10), round(self.upper_limit*10)+1)):
                 #graphData.append(np.array([element[1] for element in self.data if element[0] == sig and element[1] > -1]))
                 rejections.append(self.data[index])
 #                 successes.append(len(graphData[index]))
@@ -189,8 +189,8 @@ class DataReporting:
             #line3 = ax1.plot(sigmas, fit_avg, "b-", label="avg Fitness", color="g")
             ax1.set_title(title, fontsize=14)
         
-            ax1.set_xlabel(self.xAxisLabel, fontsize=14)
-            ax1.set_ylabel(self.yAxisLabel, fontsize=14)
+            ax1.set_xlabel(self.x_axis_label, fontsize=14)
+            ax1.set_ylabel(self.y_axis_label, fontsize=14)
             
             for tl in ax1.get_yticklabels():
                 tl.set_color("b")
@@ -199,56 +199,56 @@ class DataReporting:
             lns = line1 #+line2 +line3 + line4 + line5
             labs = [l.get_label() for l in lns]
             ax1.legend(lns, labs, loc="center right")
-            #plt.yticks(np.arange(0, max(maxs), 5))
-            plt.yticks(np.arange(0, self.maxEvals, self.yTicks))
+            #plt.y_ticks(np.arange(0, max(maxs), 5))
+            plt.yticks(np.arange(0, self.max_evals, self.y_ticks))
             plt.xticks(np.arange(min(sigmas), max(sigmas)+0.1, 0.1))
             plt.show()
         except:
-            print("lowerLimit and/or upperLimit values do not match loaded data")
+            print("lower_limit and/or upper_limit values do not match loaded data")
     
     def displayAlgorithmBoxPlots(self, algorithms, title = "unspecififed"): #algorithmOne = "default", algorithmTwo = "default", algorithmThree = "default", algorithmFive = "default", algorithmThree = "default", algorithmFour = "default"):
         data = []
-        xAxisData = []
+        x_axis_data = []
         for algorithm in algorithms:
-            xAxisData.append(algorithm)
+            x_axis_data.append(algorithm)
         
         for i in range(len(self.data)):
             for j in range(len(self.data[i])):
                 if self.data[i][j] == -1: # default value - no solution was found on this run
-                    self.data[i][j] = self.maxEvals
+                    self.data[i][j] = self.max_evals
             data.append(self.data[i])
         
-        self.generateBoxPlots(data, xAxisData, title)
+        self.generateBoxPlots(data, x_axis_data, title)
         
     def displaySigmaBoxPlots(self, title = "undefined"):
         data = []
-        xAxisData = []
+        x_axis_data = []
         index = 0
         print(self.data)
         #for each sigma and result tuple in self.data, creates a list that is as long as the count of successful runs 
         #that holds the associated evaluation count of that run
-        for sig in (round(i * self.sigmaIncrements, 1) for i in range(round(self.lowerLimit*10), round(self.upperLimit*10)+1)):
+        for sig in (round(i * self.sigma_increments, 1) for i in range(round(self.lower_limit*10), round(self.upper_limit*10)+1)):
             data.append(np.array([element[1] for element in self.data[0] if element[0] == sig]))
 
             for j in range(len(data[index])):
                 if data[index][j] == -1:
-                    data[index][j] = self.maxEvals
-            xAxisData.append(sig)
+                    data[index][j] = self.max_evals
+            x_axis_data.append(sig)
             index += 1
 
-        #if self.loadFileName == "undefined":
-        #    title = self.loadFileName
+        #if self.load_file_name == "undefined":
+        #    title = self.load_file_name
         #else:
-        #    splitTitle = self.loadFileName.split(" - ", 2)
+        #    splitTitle = self.load_file_name.split(" - ", 2)
         #    title = splitTitle[0] + ", Environment: " + splitTitle[1]
-        #self.pandTtest(data)
+        #self.p_and_t_test(data)
 
-        self.sigmaSignificanceTesting(data)
-        #self.basicTtest(array1, array2, alpha)
-        self.generateBoxPlots(data, xAxisData, title)
+        self.sigma_significance_testing(data)
+        #self.basic_t_test(array1, array2, alpha)
+        self.generateBoxPlots(data, x_axis_data, title)
         
     
-    def generateBoxPlots(self, data, xAxisData, title):
+    def generateBoxPlots(self, data, x_axis_data, title):
         '''reference: Matplotlib documentation, https://matplotlib.org/3.1.1/gallery/statistics/boxplot_demo.html'''
         fig, ax1 = plt.subplots(figsize=(10, 6))
         #fig.canvas.set_window_title('Sigma DataVisualisationandTesting')
@@ -269,8 +269,8 @@ class DataReporting:
         
         ax1.set_title(title, fontsize=14)
         
-        ax1.set_xlabel(self.xAxisLabel, fontsize=14)
-        ax1.set_ylabel(self.yAxisLabel, fontsize=14)
+        ax1.set_xlabel(self.x_axis_label, fontsize=14)
+        ax1.set_ylabel(self.y_axis_label, fontsize=14)
         ax1.set_ylim()
         
         # Now fill the boxes with desired colors
@@ -300,11 +300,11 @@ class DataReporting:
         
         # Set the axes ranges and axes labels
         ax1.set_xlim(0.5, num_boxes + 0.5)
-        top = self.maxEvals + self.graphPadding
+        top = self.max_evals + self.graph_padding
         bottom = 0
         ax1.set_ylim(bottom, top)
         
-        ax1.set_xticklabels(xAxisData,
+        ax1.set_xticklabels(x_axis_data,
                             rotation=0, fontsize=12)
         
         # Due to the Y-axis scale being different across samples, it can be
@@ -323,10 +323,10 @@ class DataReporting:
         
         
         #Finally, add a basic legend f'{N} Random Numbers'
-        fig.text(0.80, 0.01, self.tanLabel,
+        fig.text(0.80, 0.01, self.tan_label,
                  backgroundcolor=box_colors[1],
                  color='black', weight='roman', size='small')
-        fig.text(0.80, 0.04, self.blueLabel,
+        fig.text(0.80, 0.04, self.blue_label,
                  backgroundcolor=box_colors[0], color='black', weight='roman',
                  size='small')
         
@@ -335,12 +335,12 @@ class DataReporting:
 #         fig.text(0.815, 0.15, ' Outliers', color='black', weight='roman',
 #                   size='medium')
         
-        plt.yticks(np.arange(0, self.maxEvals + 10, self.yTicks))
+        plt.yticks(np.arange(0, self.max_evals + 10, self.y_ticks))
         plt.show()
         #except:
             #print("Error") #'''TO CHANGE '''
     
-    def sigmaSignificanceTesting(self, sigmaData):
+    def sigma_significance_testing(self, sigmaData):
         
         count = 0
         rejections = 0
@@ -352,19 +352,19 @@ class DataReporting:
                 else:
                     count += 1
                     print("For sigma " + str((j+1)/10) + " and " + str((i+1)/10))
-                    if self.basicTtest(sigmaData[j], sigmaData[i]):
+                    if self.basic_t_test(sigmaData[j], sigmaData[i]):
                         results[j][i] = -(i+1)/10
                         rejections += 1
-                        #significantSigmas.append(((j+1)/10, (i+1)/10))
-                        #mostSignificant.append((j+1)/10)
-                        #mostSignificant.append((i+1)/10)
+                        #significant_sigmas.append(((j+1)/10, (i+1)/10))
+                        #most_significant.append((j+1)/10)
+                        #most_significant.append((i+1)/10)
                     else:
                         results[j][i] = 1
             results[j][0] = (j+1)/10
         print("Rejections: " + str(rejections))
         print(results)
     
-    def basicTtest(self, array1, array2, alpha = 0.05):
+    def basic_t_test(self, array1, array2, alpha = 0.05):
         #assuming both arrays are of equal size
         stats, p = ttest_ind(array1, array2)
         
@@ -377,7 +377,7 @@ class DataReporting:
         
         
     
-    def independentTTest(self, data1, data2, alpha):
+    def independent_t_test(self, data1, data2, alpha):
         '''Reference: 
         BrownLee, Jason, 2019, 'How to Code the Student's t-Test from Scratch in Python', MachineLeanring Mastery, retrieved from: https://machinelearningmastery.com/how-to-code-the-students-t-test-from-scratch-in-python/
         '''
@@ -417,13 +417,13 @@ class DataReporting:
         #return t_stat, df, cv, p
         return rejected
     
-    def pandTtest(self, sigmaData):
+    def p_and_t_test(self, sigmaData):
         alpha = 0.05
         #t_stat, df, cv, p = independent_ttest(data1, data2, alpha)
         count = 0
         rejections = 0
-        significantSigmas = []
-        mostSignificant = []
+        significant_sigmas = []
+        most_significant = []
 
         for j in range(len(sigmaData)):
             for i in range(len(sigmaData)):
@@ -432,18 +432,18 @@ class DataReporting:
                 else:
                     count += 1
                     print("For sigma " + str((j+1)/10) + " and " + str((i+1)/10))
-                    if self.independentTTest(sigmaData[j], sigmaData[i], alpha):
+                    if self.independent_t_test(sigmaData[j], sigmaData[i], alpha):
                         rejections += 1
-                        significantSigmas.append(((j+1)/10, (i+1)/10))
-                        mostSignificant.append((j+1)/10)
-                        mostSignificant.append((i+1)/10)
+                        significant_sigmas.append(((j+1)/10, (i+1)/10))
+                        most_significant.append((j+1)/10)
+                        most_significant.append((i+1)/10)
                     
         print("total comparisons: " + str(count))
         print("Total rejections: " + str(rejections))
-        print(significantSigmas)
-        #biggest = np.max([mostSignificant.count(element) for element in mostSignificant])
-        countPairs = Counter(mostSignificant)
-        print(countPairs)
+        print(significant_sigmas)
+        #biggest = np.max([most_significant.count(element) for element in most_significant])
+        count_pairs = Counter(most_significant)
+        print(count_pairs)
 
     #WIP below
     def pvalue_101(self, mu, sigma, samp_size, samp_mean=0, deltam=0):
