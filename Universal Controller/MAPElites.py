@@ -39,6 +39,9 @@ class MAPElites():
     heatmap_title = "undefined"
     y_axis_label = "Average Velocity (m/s)"
     
+    g_objective_fitnesses = []
+    g_behavioural_descriptors = []
+    
     def __init__(self, individual_size, eval_function, bin_count = 10, tournament_size = 5, max_velocity = 0.125, max_distance = 1.2):
         self.bins = bin_count
         self.eval_function = eval_function
@@ -148,7 +151,7 @@ class MAPElites():
         date_time = rawDT.strftime("%m-%d-%Y, %H-%M-%S") #make a filename compatible datetime string
         parameters = " " + str(self.tournament_size) + "TS, " + str(self.bins) + "BC, " + str(self.generations) + "gens" 
         self.save_file = self.save_file + parameters + date_time
-        f = open(self.save_file + ".txt",'wb')
+        f = open(self.save_file + "FULL MAP" + ".txt",'wb')
         pickle.dump(zip(self.search_space, self.saved_members), f)
         f.close()
         self.save_log_data()
@@ -194,13 +197,13 @@ class MAPElites():
         self.successes[:] = []
     #minimum effective generations is 10
     def run_algorithm(self, generations):
-        
+        self.g_behavioural_descriptors[:] = []
+        self.g_objective_fitnesses[:] = []
         np.random.seed()
         print("Running MAP-Elites evaluation for " + str(generations) + " generations with a bin count of: " + str(self.bins))
         
         #use the first 10% of the total generations to generate initial cell entries or bin_count *50 - whatever smaller
         self.initial_pop_size  = round(generations/10)
-        
         #check if map is already loaded
         if self.loaded_state:
             self.initial_pop_size = 0
@@ -222,9 +225,11 @@ class MAPElites():
                 new_member[:] = self.gaussian_mutation(new_member)
             
             #get the behavioural description of the new member through evaluation
-            average_V, distance_FS, fitness = self.eval_function(new_member, True)
-            
+            average_V, distance_FS, fitness = self.eval_function(new_member, map_elites =True)
+          
             behaviours = [average_V, distance_FS]
+            self.g_behavioural_descriptors.append(behaviours)
+            self.g_objective_fitnesses.append(fitness)
             ##pass to insert function which determines whether to keep or discard
             coordinates = self.insert(behaviours, fitness, new_member)
             
@@ -242,7 +247,7 @@ class MAPElites():
         #visualise the map and the solutions found in the console
         self.visualise_map()
         self.save_map()
-        return gen
+        return gen, self.g_behavioural_descriptors, self.g_objective_fitnesses
         
         
     def visualise_map(self):

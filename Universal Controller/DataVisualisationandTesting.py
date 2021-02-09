@@ -1,4 +1,5 @@
 import matplotlib
+matplotlib.use('Qt5Agg')
 import matplotlib.pyplot as plt
 import pickle
 import datetime
@@ -19,28 +20,710 @@ import seaborn as sns
 import pandas as pd
 
 '''Blank Python Module primarily for data loading and visualisation via the DataReporting class '''
+###
+
+
+def plotLineGraph(data, title, yticks, legend):
+    x1 = np.arange(len(data[0]))
+    x2 = np.arange(len(data[1]))
+    x3 = np.arange(len(data[2]))
+    x4 = np.arange(len(data[3]))
+    x5 = np.arange(len(data[4]))
+    x6 = np.arange(len(data[5]))
+    x7 = np.arange(len(data[6]))
+    x8 = np.arange(len(data[7]))
+    x9 = np.arange(len(data[8]))
+    x10 = np.arange(len(data[9]))
+    
+    
+    y1 = data[0]
+    y2 = data[1]
+    y3 = data[2]
+    y4 = data[3]
+    y5 = data[4]
+    y6 = data[5]
+    y7 = data[6]
+    y8 = data[7]
+    y9 = data[8]
+    y10 = data[9]
+    
+    plt.yticks(np.arange(0, 1, yticks))
+    plt.xticks(np.arange(0, len(data[9]), 1))
+
+    plt.plot(x1, y1, label = legend[0])
+    # plotting the line 2 points 
+    plt.plot(x2, y2, label = legend[1])
+    plt.plot(x3, y3, label = legend[2])
+    plt.plot(x4, y4, label = legend[3])
+    plt.plot(x5, y5, label = legend[4])
+    plt.plot(x6, y6, label = legend[5])
+    plt.plot(x7, y7, label = legend[6])
+    plt.plot(x8, y8, label = legend[7])
+    plt.plot(x9, y9, label = legend[8])
+    plt.plot(x10, y10, label = legend[9])
+    plt.xlabel('Generation', fontsize=14)
+    # Set the y axis label of the current axis.
+    plt.ylabel('Value', fontsize=14)
+    # Set a title of the current axes.
+    plt.title(title, fontsize=14)
+    # show a legend on the plot
+    plt.legend()
+    # Display a figure.
+    plt.show()
+
+def convertToDistance(input):
+    result = 1.4142*(1-input)
+    return result
+
+
+
+def generateAVResultsGraphs():
+    data=[]
+    behaviours=[]
+    medianV=[]
+    distances=[]
+    noveltys=[]
+    
+    AVERAGE_VELOCITY_TICKS = 0.0025
+    MEDIAN_VELOCITY_TICKS = 0.005
+    END_POINT_TICKS = 0.025
+    NOVELTY_TICKS = 0.0025
+    
+    myData = DataReporting("(HR) NIPES AV FULL DATA .90ST 3 - 10000ME, 10PS, 1TR,  11-18-2020, 03-44-17.txt") #805
+    myData.load_graph_data()
+    data.append(myData.complex_data)
+    myData = DataReporting("(HR) NIPES AV FULL DATA .90ST 9 - 10000ME, 10PS, 1TR,  11-18-2020, 21-09-37.txt")#888
+    myData.load_graph_data()
+    data.append(myData.complex_data)
+    myData = DataReporting("(HR) NIPES AV FULL DATA .90ST 6 - 10000ME, 10PS, 1TR,  11-18-2020, 11-42-02.txt") #1076
+    myData.load_graph_data()
+    data.append(myData.complex_data)
+    myData = DataReporting("(HR) NIPES AV FULL DATA .90ST 1 - 10000ME, 10PS, 1TR,  11-17-2020, 21-33-21.txt")#1602
+    myData.load_graph_data()
+    data.append(myData.complex_data)
+    myData = DataReporting("(HR) NIPES AV FULL DATA .90ST 0 - 10000ME, 10PS, 1TR,  11-17-2020, 20-38-10.txt") #2002
+    myData.load_graph_data()
+    data.append(myData.complex_data)
+    myData = DataReporting("(HR) NIPES AV FULL DATA .90ST 5 - 10000ME, 10PS, 1TR,  11-18-2020, 11-04-44.txt") #2726
+    myData.load_graph_data()
+    data.append(myData.complex_data)
+    myData = DataReporting("(HR) NIPES AV FULL DATA .90ST 8 - 10000ME, 10PS, 1TR,  11-18-2020, 20-39-09.txt") #5652
+    myData.load_graph_data()
+    data.append(myData.complex_data)
+    myData = DataReporting("(HR) NIPES AV FULL DATA .90ST 2 - 10000ME, 10PS, 1TR,  11-18-2020, 03-16-52.txt") #10k
+    myData.load_graph_data()
+    data.append(myData.complex_data)
+    myData = DataReporting("(HR) NIPES AV FULL DATA .90ST 4 - 10000ME, 10PS, 1TR,  11-18-2020, 09-31-13.txt") #10k
+    myData.load_graph_data()
+    data.append(myData.complex_data)
+    myData = DataReporting("(HR) NIPES AV FULL DATA .90ST 7 - 10000ME, 10PS, 1TR,  11-18-2020, 17-23-42.txt") #10k
+    myData.load_graph_data()
+    data.append(myData.complex_data)
+    
+    for i in range(len(data)):
+        tempDistances=[]
+        tempNoveltys=[]
+        tempBehaviours=[]
+        tempMedianV=[]
+        for j in range(len(data[i][1])):
+            tempBehaviours.append(np.max(data[i][1][j]))
+            tempMedianV.append(np.median(data[i][1][j]))
+            tempDistances.append(convertToDistance(np.max(data[i][2][j])))
+            tempNoveltys.append(np.max(data[i][3][j]))
+        
+        behaviours.append(tempBehaviours)
+        medianV.append(tempMedianV)
+        distances.append(tempDistances)
+        noveltys.append(tempNoveltys)
+        
+    print(behaviours)
+    print(medianV)
+    print(distances)
+    print(noveltys)
+    
+    
+    legend=["805 sln", "888 sln", "1076 sln", "1602 sln", "2002 sln", "2726 sln", "5652 sln", "10K", "10K", "10K"]
+            
+    plotLineGraph(behaviours, 'NIP-ES Hard Race Results - Average Velocity descriptor - Max Average Velocity', AVERAGE_VELOCITY_TICKS, legend)
+    plotLineGraph(medianV, 'NIP-ES Hard Race Results - Average Velocity descriptor - Median Average Velocity', MEDIAN_VELOCITY_TICKS, legend)
+    plotLineGraph(distances, 'NIP-ES Hard Race Results - Average Velocity descriptor - Min Distance from End Point ', END_POINT_TICKS, legend)
+    plotLineGraph(noveltys, 'NIP-ES Hard Race Results - Average Velocity descriptor - Max Novelty Score', NOVELTY_TICKS, legend)
+
+
+def generateMVResultsGraphs():
+    data=[]
+    behaviours=[]
+    medianV=[]
+    distances=[]
+    noveltys=[]
+    
+    AVERAGE_VELOCITY_TICKS = 0.0025
+    MEDIAN_VELOCITY_TICKS = 0.005
+    END_POINT_TICKS = 0.025
+    NOVELTY_TICKS = 0.0025
+    
+    
+    myData = DataReporting("(HR) NIPES MEDIANV FULL DATA .90ST 6 - 10000ME, 10PS, 1TR,  12-14-2020, 15-46-03.txt")#560
+    myData.load_graph_data()
+    data.append(myData.complex_data)
+    myData = DataReporting("(HR) NIPES MEDIANV FULL DATA .90ST 3 - 10000ME, 10PS, 1TR,  12-14-2020, 01-17-18.txt") #4243
+    myData.load_graph_data()
+    data.append(myData.complex_data)
+    myData = DataReporting("(HR) NIPES MEDIANV FULL DATA .90ST 9 - 10000ME, 10PS, 1TR,  12-15-2020, 14-58-24.txt") #6668
+    myData.load_graph_data()
+    data.append(myData.complex_data)
+    myData = DataReporting("(HR) NIPES MEDIANV FULL DATA .90ST 0 - 10000ME, 10PS, 1TR,  12-12-2020, 02-06-19.txt")#7416
+    myData.load_graph_data()
+    data.append(myData.complex_data)
+    myData = DataReporting("(HR) NIPES MEDIANV FULL DATA .90ST 4 - 10000ME, 10PS, 1TR,  12-14-2020, 07-37-16.txt") #8254
+    myData.load_graph_data()
+    data.append(myData.complex_data)
+    myData = DataReporting("(HR) NIPES MEDIANV FULL DATA .90ST 7 - 10000ME, 10PS, 1TR,  12-15-2020, 02-04-34.txt") #10k
+    myData.load_graph_data()
+    data.append(myData.complex_data)
+    myData = DataReporting("(HR) NIPES MEDIANV FULL DATA .90ST 1 - 10000ME, 10PS, 1TR,  12-12-2020, 07-48-16.txt")  #10k
+    myData.load_graph_data()
+    data.append(myData.complex_data)
+    myData = DataReporting("(HR) NIPES MEDIANV FULL DATA .90ST 2 - 10000ME, 10PS, 1TR,  12-12-2020, 13-33-32.txt") #10K
+    myData.load_graph_data()
+    data.append(myData.complex_data)
+    myData = DataReporting("(HR) NIPES MEDIANV FULL DATA .90ST 5 - 10000ME, 10PS, 1TR,  12-14-2020, 15-20-39.txt") #10k
+    myData.load_graph_data()
+    data.append(myData.complex_data)
+    myData = DataReporting("(HR) NIPES MEDIANV FULL DATA .90ST 8 - 10000ME, 10PS, 1TR,  12-15-2020, 09-50-37.txt") #10k
+    myData.load_graph_data()
+    data.append(myData.complex_data)
+
+    
+    evals=[]
+    for i in range(len(data)):
+        tempDistances=[]
+        tempNoveltys=[]
+        tempBehaviours=[]
+        tempMedianV=[]
+        evals.append(data[i][0])
+        for j in range(len(data[i][1])):
+            
+            tempBehaviours.append(np.max(data[i][1][j]))
+            tempMedianV.append(np.median(data[i][1][j]))
+            tempDistances.append(convertToDistance(np.max(data[i][2][j])))
+            tempNoveltys.append(np.max(data[i][3][j]))
+        
+        behaviours.append(tempBehaviours)
+        medianV.append(tempMedianV)
+        distances.append(tempDistances)
+        noveltys.append(tempNoveltys)
+        
+    
+    print(evals)
+    
+    legend=["560 sln", "4243 sln", "6668 sln", "7416 sln", "8254 sln", "10K", "10K", "10K", "10K", "10K"]
+            
+    plotLineGraph(behaviours, 'NIP-ES Hard Race Results - Median Velocity descriptor - Max Median Velocity', AVERAGE_VELOCITY_TICKS, legend)
+    plotLineGraph(medianV, 'NIP-ES Hard Race Results - Median Velocity descriptor - Median Median Velocity', MEDIAN_VELOCITY_TICKS, legend)
+    plotLineGraph(distances, 'NIP-ES Hard Race Results - Median Velocity descriptor - Min Distance from End Point ', END_POINT_TICKS, legend)
+    plotLineGraph(noveltys, 'NIP-ES Hard Race Results - Median Velocity descriptor - Max Novelty Score', NOVELTY_TICKS, legend)
+
+
+generateMVResultsGraphs()
+# myData = DataReporting("(HR) NIPES AV FULL DATA .90ST 9 - 10000ME, 10PS, 1TR,  11-18-2020, 21-09-37.txt")#888
+#  
+# myData.load_graph_data()
+# data.append(myData.complex_data)
+# tempDistances=[]
+# for i in range(len(data[1])):
+#     distanceTwo.append(convertToDistance(np.max(data[2][i])))
+#     noveltyTwo.append(np.max(data[3][i]))
+#     behaviouralTwo.append(np.max(data[1][i]))
+#    
+#      
+# myData = DataReporting("(HR) NIPES AV FULL DATA .90ST 6 - 10000ME, 10PS, 1TR,  11-18-2020, 11-42-02.txt") #1076
+# myData.load_graph_data()
+# data = myData.complex_data
+#  
+# for i in range(len(data[1])):
+#     distanceThree.append(convertToDistance(np.max(data[2][i])))
+#     noveltyThree.append(np.max(data[3][i]))
+#     behaviouralThree.append(np.max(data[1][i]))
+#      
+#  
+#  
+# myData = DataReporting("(HR) NIPES AV FULL DATA .90ST 1 - 10000ME, 10PS, 1TR,  11-17-2020, 21-33-21.txt")#1602
+# myData.load_graph_data()
+# data = myData.complex_data
+#  
+# for i in range(len(data[1])):
+#     distanceFour.append(convertToDistance(np.max(data[2][i])))
+#     noveltyFour.append(np.max(data[3][i]))
+#     behaviouralFour.append(np.max(data[1][i]))
+#      
+#  
+# myData = DataReporting("(HR) NIPES AV FULL DATA .90ST 0 - 10000ME, 10PS, 1TR,  11-17-2020, 20-38-10.txt") #2002
+# myData.load_graph_data()
+# data = myData.complex_data
+#  
+# for i in range(len(data[1])):
+#     distanceFive.append(convertToDistance(np.max(data[2][i])))
+#     noveltyFive.append(np.max(data[3][i]))
+#     behaviouralFive.append(np.max(data[1][i]))
+
+
+    
+''' NOVELTY PLOT CODE'''
+     
+# x1 = np.arange(len(noveltyOne))
+# x2 = np.arange(len(noveltyTwo))
+# x3 = np.arange(len(noveltyThree))
+# x4 = np.arange(len(noveltyFour))
+# x5 = np.arange(len(noveltyFive))
+# y1 = noveltyOne
+# # plotting the line 1 points 
+# plt.plot(x1, y1, label = "805 sln")
+# # line 2 points
+# y2 = noveltyTwo
+# y3 = noveltyThree
+# y4 = noveltyFour
+# y5 = noveltyFive
+#  
+# #set y ticks
+# #        plt.yticks(np.arange(0, self.max_evals + 10, self.y_ticks))
+# plt.yticks(np.arange(0, 1, 0.0025))
+# plt.xticks(np.arange(0, len(distanceOne), 1))
+#  
+# # plotting the line 2 points 
+# plt.plot(x2, y2, label = "888 sln ")
+# plt.plot(x3, y3, label = "1076 sln ")
+# plt.plot(x4, y4, label = "1602 sln ")
+# plt.plot(x5, y5, label = "2002 sln ")
+# plt.xlabel('Generation', fontsize=14)
+# # Set the y axis label of the current axis.
+# plt.ylabel('Value', fontsize=14)
+# # Set a title of the current axes.
+# plt.title('NIP-ES Hard Race Results - Average Velocity descriptor - Max Novelty Score')
+# # show a legend on the plot
+# plt.legend()
+# # Display a figure.
+# plt.show()
+
+
+
+
+
+
+
+
+
+'''DISTANCE FROM END POINT CODE ''' 
+# 
+# def convertToDistance(input):
+#     result = 1.4142*(1-input)
+#     return result
+#  
+# distanceOne = []
+# distanceTwo= []
+# distanceThree=[]
+# distanceFour=[]
+# distanceFive=[]
+#  
+# noveltyOne=[]
+# noveltyTwo=[]
+# noveltyThree=[]
+# noveltyFour=[]
+# noveltyFive=[]
+#  
+# behaviouralOne=[]
+# behaviouralTwo=[]
+# behaviouralThree=[]
+# behaviouralFour=[]
+# behaviouralFive=[]
+#  
+#  
+# myData = DataReporting("(HR) NIPES AV FULL DATA .90ST 3 - 10000ME, 10PS, 1TR,  11-18-2020, 03-44-17.txt") #805
+# #myData = DataReporting("(HR) NIPES AV FULL DATA .90ST 9 - 10000ME, 10PS, 1TR,  11-18-2020, 21-09-37.txt")#888
+# #myData = DataReporting("(HR) NIPES AV FULL DATA .90ST 6 - 10000ME, 10PS, 1TR,  11-18-2020, 11-42-02.txt") #1076
+# #myData = DataReporting("(HR) NIPES AV FULL DATA .90ST 1 - 10000ME, 10PS, 1TR,  11-17-2020, 21-33-21.txt")#1602
+# #myData = DataReporting("(HR) NIPES AV FULL DATA .90ST 0 - 10000ME, 10PS, 1TR,  11-17-2020, 20-38-10.txt") #2002
+#  
+#  
+#  
+# myData.load_graph_data()
+# #temp_sln_evals, temp_behavioural_descriptors, temp_objective_fitnesses, temp_novelty_scores
+# #print(myData.complex_data)
+# data = myData.complex_data
+#  
+# for i in range(len(data[1])):
+#     distanceOne.append(convertToDistance(np.max(data[2][i])))
+#     noveltyOne.append(np.max(data[3][i]))
+#     behaviouralOne.append(np.max(data[1][i]))
+#      
+#      
+# myData = DataReporting("(HR) NIPES AV FULL DATA .90ST 9 - 10000ME, 10PS, 1TR,  11-18-2020, 21-09-37.txt")
+#  
+# myData.load_graph_data()
+# data = myData.complex_data
+#  
+# for i in range(len(data[1])):
+#     distanceTwo.append(convertToDistance(np.max(data[2][i])))
+#     noveltyTwo.append(np.max(data[3][i]))
+#     behaviouralTwo.append(np.max(data[1][i]))
+#    
+#      
+# myData = DataReporting("(HR) NIPES AV FULL DATA .90ST 6 - 10000ME, 10PS, 1TR,  11-18-2020, 11-42-02.txt") #1076
+# myData.load_graph_data()
+# data = myData.complex_data
+#  
+# for i in range(len(data[1])):
+#     distanceThree.append(convertToDistance(np.max(data[2][i])))
+#     noveltyThree.append(np.max(data[3][i]))
+#     behaviouralThree.append(np.max(data[1][i]))
+#      
+#  
+#  
+# myData = DataReporting("(HR) NIPES AV FULL DATA .90ST 1 - 10000ME, 10PS, 1TR,  11-17-2020, 21-33-21.txt")#1602
+# myData.load_graph_data()
+# data = myData.complex_data
+#  
+# for i in range(len(data[1])):
+#     distanceFour.append(convertToDistance(np.max(data[2][i])))
+#     noveltyFour.append(np.max(data[3][i]))
+#     behaviouralFour.append(np.max(data[1][i]))
+#      
+#  
+# myData = DataReporting("(HR) NIPES AV FULL DATA .90ST 0 - 10000ME, 10PS, 1TR,  11-17-2020, 20-38-10.txt") #2002
+# myData.load_graph_data()
+# data = myData.complex_data
+#  
+# for i in range(len(data[1])):
+#     distanceFive.append(convertToDistance(np.max(data[2][i])))
+#     noveltyFive.append(np.max(data[3][i]))
+#     behaviouralFive.append(np.max(data[1][i]))
+#      
+#      
+#      
+# x1 = np.arange(len(distanceOne))
+# x2 = np.arange(len(distanceTwo))
+# x3 = np.arange(len(distanceThree))
+# x4 = np.arange(len(distanceFour))
+# x5 = np.arange(len(distanceFive))
+# y1 = distanceOne
+# # plotting the line 1 points 
+# plt.plot(x1, y1, label = "805 sln (cm)")
+# # line 2 points
+# y2 = distanceTwo
+# y3 = distanceThree
+# y4 = distanceFour
+# y5 = distanceFive
+#  
+# #set y ticks
+# #        plt.yticks(np.arange(0, self.max_evals + 10, self.y_ticks))
+# plt.yticks(np.arange(0, 1, 0.025))
+# plt.xticks(np.arange(0, len(distanceOne), 1))
+#  
+# # plotting the line 2 points 
+# plt.plot(x2, y2, label = "888 sln (cm)")
+# plt.plot(x3, y3, label = "1076 sln (cm)")
+# plt.plot(x4, y4, label = "1602 sln (cm)")
+# plt.plot(x5, y5, label = "2002 sln (cm)")
+# plt.xlabel('Generation', fontsize=14)
+# # Set the y axis label of the current axis.
+# plt.ylabel('Value', fontsize=14)
+# # Set a title of the current axes.
+# plt.title('NIP-ES Hard Race Results - Average Velocity descriptor - Min Distance from End Point')
+# # show a legend on the plot
+# plt.legend()
+# # Display a figure.
+# plt.show()
+
+# myData = DataReporting("(HR) NIPES AV FULL DATA .90ST 3 - 10000ME, 10PS, 1TR,  11-18-2020, 03-44-17.txt")
+# myData.load_graph_data()
+# #temp_sln_evals, temp_behavioural_descriptors, temp_objective_fitnesses, temp_novelty_scores
+# #print(myData.complex_data)
+# data = myData.complex_data
+# 
+# count = 0
+# objective_maxes=[]
+# novelty_maxes=[]
+# 
+# for i in range(len(data[1])):
+#     objective_maxes.append(np.max(data[2][i]))
+#     novelty_maxes.append(np.max(data[3][i]))
+#         
+# print(objective_maxes)
+# print(novelty_maxes)
+# 
+# ''' DATA RESULTS VARIANCE BOX PLOT CODE '''
+# myData = DataReporting()
+#   
+#  
+# myData.data.append(objective_maxes)  
+# 
+# myData.data.append(novelty_maxes)  
+# 
+# 
+# myData.total_runs = 10
+# myData.max_evals = 1
+# myData.y_ticks = 0.1
+# myData.graph_padding = 0
+# myData.x_axis_label = "Novelty Behavioural Descriptor"
+# myData.y_axis_label = "Number of Samples"
+#   
+# testData = myData.display_algorithm_box_plots(["Objective Fitnesses", "Novelty Scores"], "Data Results Box Plots - Variance of Objective Fitness and Novelty Score")
+
+
+
+
+#so plot generation on bottom of graph which is index in the array and then repeat code for the novelty score and plot line graph
+#print(data)
+#temp = data[0][0]
+#for i in range(len(data)):
+#    for j in range(len(data[i])):
+#        if(data[i][j] > temp):
+#            temp = data[i]
+#
+#print("highest = " + str(temp))
+
+
+#average velocity RNN results:
+#[-1, -1, 34, -1, 167, 425, -1, -1, -1, 31]
+# DFS DATA:
+#[-1, 33, 1429, 2875, -1, 129, 1294, 2115, -1, -1]
+
+#regular novelty data
+#[144, 2412, 514, 806, 13, 3040, 180, 3736, 2297, 1466]
+
+#MAP=Elites results
+#[1221, 1064, 1078, 1356, 397, 3753, 1102, 67, 3647, 2102]
+
+#NIPES results
+#[2016, 1666, 1364, 493, 963, 387, 544, 3505, 5, 2030]
+
+#NIPES AV RESULTS
+#[969, 287, 893, 656, 835, 545, 1051, 18, 219, 1540]
+
+#NIPES DFS RESULTS:
+#[188, 6134, 367, 1427, 3120, 146, 861, 1791, 1136, 81]
+
+
+
+#NIPES HARDRACE RNDPOINTS
+# [10000, 6249, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000]
+
+#NIPES AV HARDRACE
+#[8214, 10000, 10000, 10000, 10000, 10000, 6627, 2566, 10000, 10000]
+
+#NIPES DFS HARDRACE
+#[10000, 10000, 10000, 7786, 3162, 10000, 10000, 1114, 10000, 7497]
+
+#NEW NIPES AV TESTING HARD RACE 0.9 SLN THRESHOLD
+#[2002, 1602, 10000, 805, 10000, 2726, 1076, 10000, 5652, 888]
+#NEW NIPES DFS TESTING HARD RACE 0.9 SLN THRESHOLD
+#[2888, 8553, 7585, 10000, 10000, 7565, 8502, 10000, 10000, 10000]
+#NEW NIPES ENDPOINTS TESTING HARD RACE 0.9 SLN THRESHOLD
+#[10000, 10000, 10000, 10000, 1897, 10000, 1980, 10000, 10000, 7517]
+#NEW NIPES MEDIAN V TESTING HARD RACE 0.9 SLN THRESHOLD
+#[8990, 10000, 10000, 10000, 9463, 5565, 8387, 10000, 10000, 4932, 2952, 10000]
+#CORRECTED NEW NIPES MEDIAN V TESTING HARD RACE 0.9 SLN THRESHOLD
+#[4243, 8254, 10000, 560, 10000, 10000, 6668, 7416, 10000, 10000]
+
+##NEW NIPES AV TESTING HARD RACE 0.9 SLN THRESHOLD MULTI DESCRIPTOR
+#AV & DFS
+#[3063, 7424, 10000, 10000, 4411, 8344, 10000, 10000, 938, 10000]
+
+#NEW MAP ELITES HARD RACE 0.9 AV AND DFS
+#[10000,10000,7150,10000,2121,3704,6313,10000,10000,10000]
+
+'''Additional Experimentation Code'''
+#AV
+#print("myData.complex_data")
+
+'''HARD RACE 0.9 GRAPH CODE  '''
+# myData = DataReporting()
+#  
+# #ORDER
+# #SLN EVALS
+# #BEHAVIOURAL
+# #OBJECTIVE FITNESSES
+# #NOVELTY SCORES
+#  
+#  
+# #AV
+# myData.data.append([2002, 1602, 10000, 805, 10000, 2726, 1076, 10000, 5652, 888])  
+# #MV    
+# myData.data.append([4243, 8254, 10000, 560, 10000, 10000, 6668, 7416, 10000, 10000])      
+# #DFS
+# myData.data.append([2888, 8553, 7585, 10000, 10000, 7565, 8502, 10000, 10000, 10000])  
+# #ENDPOINTS    
+# myData.data.append([10000, 10000, 10000, 10000, 1897, 10000, 1980, 10000, 10000, 7517])      
+#  
+#  
+# #myData.load_data()
+# #DFS
+# #myData.data.append([-1, 33, 1429, 2875, -1, 129, 1294, 2115, -1, -1])      
+#   
+# #ENDPOINTS
+# #myData.data.append([144, 2412, 514, 806, 13, 3040, 180, 3736, 2297, 1466])      
+#    
+# #MAP-Elites
+# #myData.data.append([1221, 1064, 1078, 1356, 397, 3753, 1102, 67, 3647, 2102])      
+#    
+# myData.total_runs = 10
+# myData.max_evals = 10000
+# myData.y_ticks = 1000
+# myData.graph_padding = 2000
+# myData.x_axis_label = "Novelty Behavioural Descriptor"
+# myData.y_axis_label = "Number of Samples"
+#   
+# testData = myData.display_algorithm_box_plots(["Average Velocity", "Median Velocity", "Distance FS", "Endpoints"], "NIP-ES Single Descriptor Results - Hard Race 0.9 sln threshold")
+
+
+
+#'''HARD RACE 0.9 MULTI DESCRIPTOR GRAPH CODE  '''
+#myData = DataReporting()
+# 
+##ORDER
+##SLN EVALS
+##BEHAVIOURAL
+##OBJECTIVE FITNESSES
+##NOVELTY SCORES
+# 
+# 
+##AV & DFS
+#myData.data.append([3063, 7424, 10000, 10000, 4411, 8344, 10000, 10000, 938, 10000])
+##MAP ELITES
+#myData.data.append([10000,10000,7150,10000,2121,3704,6313,10000,10000,10000])        
+# 
+# 
+##myData.load_data()
+##DFS
+##myData.data.append([-1, 33, 1429, 2875, -1, 129, 1294, 2115, -1, -1])      
+#  
+##ENDPOINTS
+##myData.data.append([144, 2412, 514, 806, 13, 3040, 180, 3736, 2297, 1466])      
+#   
+##MAP-Elites
+##myData.data.append([1221, 1064, 1078, 1356, 397, 3753, 1102, 67, 3647, 2102])      
+#   
+#myData.total_runs = 10
+#myData.max_evals = 10000
+#myData.y_ticks = 1000
+#myData.graph_padding = 2000
+#myData.x_axis_label = "Algorithm/Novelty Behavioural Descriptors"
+#myData.y_axis_label = "Number of Samples"
+#  
+#testData = myData.display_algorithm_box_plots(["NIP-ES - AV/DFS", "MAP-Elites - AV/DFS"], "Multi-Descriptor Algorithm Results - Hard Race 0.9 sln threshold")
+
+''' END OF MULTI DESCRIPTOR GRAPH CODE '''
+
+'''NIPES Experimentation Code'''
+#AV
+#myData = DataReporting()
+#       
+# '''Manually ensure the DataReporing class is set with relevant parameters ''' 
+#
+#AV
+#myData.data.append([-1, -1, 34, -1, 167, 425, -1, -1, -1, 31])      
+#myData.load_data()
+#DFS
+#NIPES results
+#[2016, 1666, 1364, 493, 963, 387, 544, 3505, 5, 2030]
+
+#NIPES AV RESULTS
+#[969, 287, 893, 656, 835, 545, 1051, 18, 219, 1540]
+
+#NIPES DFS RESULTS:
+#[188, 6134, 367, 1427, 3120, 146, 861, 1791, 1136, 81]
+  
+
+# #KNN
+# myData.data.append([969, 287, 893, 656, 835, 545, 1051, 18, 219, 1540])      
+# 
+# #MAP-Elites
+# myData.data.append([188, 6134, 367, 1427, 3120, 146, 861, 1791, 1136, 81])      
+# 
+# myData.data.append([2016, 1666, 1364, 493, 963, 387, 544, 3505, 5, 2030])    
+# 
+# myData.total_runs = 10
+# myData.max_evals = 10000
+# myData.y_ticks = 1000
+# myData.graph_padding = 5000
+# myData.x_axis_label = "Novelty Behavioural Descriptor"
+# myData.y_axis_label = "Number of Samples"
+# # 
+#   
+# 
+# #MAP ELITES
+#      
+# #CONTROL  
+#   
+# testData = myData.display_algorithm_box_plots(["Average Velocity", "Distance FS", "Endpoints"], "NIP-ES Comparison - Behavioural Descriptors Results")
+#     
+
+
+'''FULL NIPES AND NCMAES RESULTS Experimentation Code'''
+#AV
+
+# myData = DataReporting("NCMAES AV RUN 9 - 10000ME, 50PS, 1TR,  10-06-2020, 04-15-21.txt")
+# #       
+# # '''Manually ensure the DataReporing class is set with relevant parameters ''' 
+# #
+# #AV
+# #myData.data.append([-1, -1, 34, -1, 167, 425, -1, -1, -1, 31])      
+# myData.load_data()
+# 
+# #NIPES AV
+# myData.data.append([969, 287, 893, 656, 835, 545, 1051, 18, 219, 1540])      
+# #DFS
+# myData.data.append([-1, 33, 1429, 2875, -1, 129, 1294, 2115, -1, -1])    
+# #NIPES DFS
+# myData.data.append([188, 6134, 367, 1427, 3120, 146, 861, 1791, 1136, 81])      
+# 
+#  
+# #ENDPOINTS
+# myData.data.append([144, 2412, 514, 806, 13, 3040, 180, 3736, 2297, 1466])      
+# 
+# #NIPES ENDPOINTS
+# myData.data.append([2016, 1666, 1364, 493, 963, 387, 544, 3505, 5, 2030])    
+# #MAP-Elites
+# #myData.data.append([1221, 1064, 1078, 1356, 397, 3753, 1102, 67, 3647, 2102])      
+#  
+# 
+# 
+# 
+# 
+# 
+# myData.total_runs = 10
+# myData.max_evals = 10000
+# myData.y_ticks = 1000
+# myData.graph_padding = 5000
+# myData.x_axis_label = "Novelty Behavioural Descriptor"
+# myData.y_axis_label = "Number of Samples"
+# myData.blue_label = "N-CMA-ES"
+# myData.tan_label = "NIP-ES"
+# 
+# testData = myData.display_algorithm_box_plots(["Average Velocity", "Average Velocity", "Distance FS", "Distance FS", "Endpoints", "Endpoints"], "NIP-ES/N-CMA-ES Comparison - Behavioural Descriptors Results")
+
 
 '''BOXPLOT Exmaple from Sigma test data'''
-#myData = DataReporting("Sigma Test - EscapeRoom - 150ME, 25PS, 25SR, 0.1-2.0, 07-21-2020, 12-17-57.txt")
-myData = DataReporting("NCMAES FULL TEST - EasyRace, 1.0N, RNN,   - 10000ME, 50PS, 10TR,  07-27-2020, 09-37-54.txt")
-'''Manually ensure the DataReporing class is set with relevant parameters ''' 
-#myData.upper_limit = 2.0
-#myData.lower_limit = 0.1
-
-myData.total_runs = 10
-myData.max_evals = 10000
-myData.y_ticks = 1000
-myData.load_data()
-
-#myData.fullResults = [248, 2707, 5613, 5510, 13, 3354, 206, 802, -1, 1225]
-#file = open("NCMAES FULL TEST - EasyRace, 1.0N, RNN,   - 10000ME, 50PS, 10TR,  07-27-2020, 09-37-54.txt",'wb')
-#pickle.dump(myData.fullResults, file)
-#file.close()
-
-#testData = myData.displaySigmaBoxPlots()
-testData = myData.display_algorithm_box_plots("NCMA-ES")
-
-#[-1, 2707, 5613, 5510, 13, 3354, 206, 802, -1, 1225]
+# myData = DataReporting("Sigma Test - EscapeRoom - 150ME, 25PS, 25SR, 0.1-2.0, 07-21-2020, 12-17-57.txt")
+# #myData = DataReporting("NCMAES FULL TEST - EasyRace, 1.0N, RNN,   - 10000ME, 50PS, 10TR,  07-27-2020, 09-37-54.txt")
+#  '''Manually ensure the DataReporing class is set with relevant parameters ''' 
+#  #myData.upper_limit = 2.0
+#  #myData.lower_limit = 0.1
+#  
+# myData.total_runs = 10
+# myData.max_evals = 10000
+# myData.y_ticks = 1000
+# myData.load_data()
+# 
+# myData.fullResults = [248, 2707, 5613, 5510, 13, 3354, 206, 802, -1, 1225]
+# file = open("NCMAES FULL TEST - EasyRace, 1.0N, RNN,   - 10000ME, 50PS, 10TR,  07-27-2020, 09-37-54.txt",'wb')
+# pickle.dump(myData.fullResults, file)
+# file.close()
+# 
+# testData = myData.displaySigmaBoxPlots()
+# testData = myData.display_algorithm_box_plots("NCMA-ES")
+# 
+# [-1, 2707, 5613, 5510, 13, 3354, 206, 802, -1, 1225]
 
 '''BOXPLOT Exmaple from Algorithm Test Data'''
 #myData = DataReporting("Algorithm Testing Data/CMA-ES/CMA-ES TEST - MiddleWall - 150ME, 25PS, 20TR, 07-21-2020, 00-28-46.txt")
@@ -195,25 +878,23 @@ testData = myData.display_algorithm_box_plots("NCMA-ES")
 ''' Sigma significance testing line graph code'''
 
 #Escape room: ({1.4: 7, 1.3: 4, 0.6: 3, 1.0: 2, 1.9: 2, 0.2: 1, 0.5: 1, 0.8: 1, 0.9: 1, 1.2: 1, 1.7: 1})
-# Middle Wall: ({1.7: 7, 1.3: 5, 1.9: 5, 0.5: 5, 1.8: 5, 2.0: 5, 0.3: 4, 1.0: 4, 1.2: 3, 1.6: 3, 0.4: 1, 0.6: 1})
-# Multi Maze: ({2.0: 6, 0.3: 2, 1.7: 1, 0.6: 1, 0.7: 1, 1.3: 1, 1.4: 1, 1.8: 1})
-# 
-#  myEA = CMAES(200, mefunc)
-#  
-#  print(myEA.population)
-#  myData = DataReporting()
-#  #myData.load_data()
-#  myData.upper_limit = 2.0
-#  myData.lower_limit = 0.1
-#  myData.max_evals = 65
-#  myData.y_ticks = 5
-#  myData.x_axis_label = "Sigma Value"
-#  myData.y_axis_label = "Total Null Hypothesis Rejections"
-# myData.data = [0.1:0, 0.2:1, 0.3:6, 0.4:1, 0.5:6, 0.6:5, 0.7:1, 0.8:1, 0.9:1, 1.0:4, 1.1:0, 1.2:4, 1.3:10, 1.4:8, 1.5:0, 1.6:3, 1.7:9, 1.8:1, 1.9:5, 2.0:11]
+#Middle Wall: ({1.7: 7, 1.3: 5, 1.9: 5, 0.5: 5, 1.8: 5, 2.0: 5, 0.3: 4, 1.0: 4, 1.2: 3, 1.6: 3, 0.4: 1, 0.6: 1})
+#Multi Maze: ({2.0: 6, 0.3: 2, 1.7: 1, 0.6: 1, 0.7: 1, 1.3: 1, 1.4: 1, 1.8: 1})
+
+
+# myData = DataReporting()
+# #myData.load_data()
+# myData.upper_limit = 2.0
+# myData.lower_limit = 0.1
+# myData.max_evals = 65
+# myData.y_ticks = 5
+# myData.x_axis_label = "Sigma Value"
+# myData.y_axis_label = "Total Null Hypothesis Rejections"
+# #myData.data = [0.1:0, 0.2:1, 0.3:6, 0.4:1, 0.5:6, 0.6:5, 0.7:1, 0.8:1, 0.9:1, 1.0:4, 1.1:0, 1.2:4, 1.3:10, 1.4:8, 1.5:0, 1.6:3, 1.7:9, 1.8:1, 1.9:5, 2.0:11]
 # myData.data = [0, 1, 6, 1, 6, 5, 1, 1, 1, 4, 0, 4, 10, 8, 0, 3, 9, 1, 5, 11]
 # 
 # 
-# myData.displayLineGraph("Sigma Significance Testing (p value and Student's T Testing)")
+# myData.display_line_graph("Sigma Significance Testing (p value and Student's T Testing)")
 
 ''' sigma clipping graph'''
 # 

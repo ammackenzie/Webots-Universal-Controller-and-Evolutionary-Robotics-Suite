@@ -19,7 +19,10 @@ DataRerportng class can also be used to load and visualise run data via box plot
 class DataReporting:
     
     full_results = []
+    full_results_overall = []
+    overall_evals = []
     data = []
+    complex_data = []
     max_evals = 100 
     y_ticks = 10
     graph_padding = 10
@@ -44,20 +47,43 @@ class DataReporting:
         file = open(date_time,'wb')
         pickle.dump(self.full_results, file)
         file.close()
+        self.save_overall_evals()
         
-        print(self.full_results)
-    
+    def save_overall_evals(self):
+        #save full_results in a time and parameters stamped text file via pickle
+        parameters = " - EVALS ONLY" + str(self.max_evals) + "ME, " + str(self.pop_size) + "PS, " + str(self.total_runs) + "TR, "
+        rawDT = datetime.datetime.now()
+        date_time = rawDT.strftime("%m-%d-%Y, %H-%M-%S") #make a filename compatible datetime string
+        date_time = parameters + " " + date_time + ".txt"
+        date_time = self.save_file_name + date_time
+        file = open(date_time,'w')
+        file.write("["+ ','.join(map(str, self.overall_evals)) +"]")
+        file.close()
+        
     def save_map_elites_test_results(self):
         #save full_results in a time and parameters stamped text file via pickle
+        '''FULL RESULTS FOR MAP-ELITES DATASTRUCTURE = [[totalevals], [[averageV, DFS], xtotal evalsby index], [objective fitness x total evals by index] ] '''
         parameters = " " + str(self.algorithm.tournament_size) + "TS, " + str(self.algorithm.bins) + "BC, " + str(self.algorithm.generations) + "gens" 
         rawDT = datetime.datetime.now()
         date_time = rawDT.strftime("%m-%d-%Y, %H-%M-%S") #make a filename compatible datetime string
         date_time = parameters + " " + date_time + ".txt"
         date_time = self.save_file_name + date_time
-        tf = open(date_time, 'w')
-        tf.write(str(self.full_results))
-        tf.close()
-        print(self.full_results)
+        file = open(date_time,'wb')
+        pickle.dump(self.full_results, file)
+        self.save_overall_evals()
+        
+    def save_overall_test_results(self):
+        #save full_results in a time and parameters stamped text file via pickle
+        '''FULL RESULTS FOR NIPES DATASTRUCTURE = [[totalevals], [behavioural descriptor, xtotal evalsby index], [novelty scores x total by index], [objectivefitness x total evals by index] ] '''
+        parameters = " - OVERALL RUN RESULTS " + str(self.max_evals) + "ME, " + str(self.pop_size) + "PS, " + str(self.total_runs) + "TR, "
+        rawDT = datetime.datetime.now()
+        date_time = rawDT.strftime("%m-%d-%Y, %H-%M-%S") #make a filename compatible datetime string
+        date_time = parameters + " " + date_time + ".txt"
+        date_time = self.save_file_name + date_time
+        file = open(date_time,'wb')
+        pickle.dump(self.full_results_overall, file)
+        file.close()
+        self.save_overall_evals()
     
     def save_sigma_test_results(self):
         #save full_results in a timestamped text file via pickle
@@ -87,24 +113,51 @@ class DataReporting:
         
         self.save_sigma_test_results()
         
-    def algorithm_test(self, my_EA, generations, total_runs, map_elites = False):
+    def algorithm_test(self, my_EA, generations, total_runs, nipes = False, map_elites = False):
         self.algorithm = my_EA
         self.generations = generations
         self.total_runs = total_runs
         if map_elites:
             self.max_evals = generations
+            self.pop_size= generations
             my_EA.save_file = self.save_file_name
+        elif nipes:
+            self.max_evals = generations
+            self.pop_size = my_EA.pop_size
         else:
             self.pop_size = my_EA.pop_size
             self.max_evals = self.generations * self.pop_size
         for run in range(total_runs):
             print("Run: " + str(run))
-            self.full_results.append(my_EA.run_algorithm(self.generations))
+            if nipes: 
+                self.full_results[:] = []
+                temp_sln_evals, temp_behavioural_descriptors, temp_objective_fitnesses, temp_novelty_scores, = my_EA.run_algorithm(self.generations)
+                temp_evals_list = []
+                temp_evals_list.append(temp_sln_evals)
+                self.full_results.append(temp_evals_list)
+                self.full_results.append(temp_behavioural_descriptors)
+                self.full_results.append(temp_objective_fitnesses)
+                self.full_results.append(temp_novelty_scores)
+                self.overall_evals.append(temp_sln_evals)
+            elif map_elites:
+                self.full_results[:] = []
+                temp_sln_evals, temp_behavioural_descriptors, temp_objective_fitnesses = my_EA.run_algorithm(self.generations)
+                temp_evals_list = []
+                temp_evals_list.append(temp_sln_evals)
+                self.full_results.append(temp_evals_list)
+                self.full_results.append(temp_behavioural_descriptors)
+                self.full_results.append(temp_objective_fitnesses)
+                self.overall_evals.append(temp_sln_evals)
+            else:
+                self.full_results[:] = []
+                self.full_results.append(my_EA.run_algorithm(self.generations))
+        
+        
+        self.full_results_overall.append(self.full_results)
         if map_elites:
             self.save_map_elites_test_results()
         else:
             self.save_test_results()
-    
     
     def control_group_test(self, individual_size, eval_function, generations = 10000, total_runs = 1):
         self.generations = generations
@@ -149,6 +202,26 @@ class DataReporting:
             file = open(load_file_name,'rb')
 
         self.data.append(pickle.load(file))
+        
+    def load_complex_data(self, load_file_name = "default"):
+        if load_file_name == "default":
+            file = open(self.load_file_name, 'rb')
+        else:
+            self.load_file_name = load_file_name
+            file = open(load_file_name,'rb')
+
+        self.complex_data.append(pickle.load(file))
+        self.data.append(self.complex_data[0])
+        
+    def load_graph_data(self, load_file_name = "default"):
+        if load_file_name == "default":
+            file = open(self.load_file_name, 'rb')
+        else:
+            self.load_file_name = load_file_name
+            file = open(load_file_name,'rb')
+
+        self.complex_data = pickle.load(file)
+        #self.data.append(self.complex_data[0])
     
     def display_line_graph(self, title = "undefined"):
         #graphData = []
@@ -206,7 +279,7 @@ class DataReporting:
         except:
             print("lower_limit and/or upper_limit values do not match loaded data")
     
-    def displayAlgorithmBoxPlots(self, algorithms, title = "unspecififed"): #algorithmOne = "default", algorithmTwo = "default", algorithmThree = "default", algorithmFive = "default", algorithmThree = "default", algorithmFour = "default"):
+    def display_algorithm_box_plots(self, algorithms, title = "unspecififed"): #algorithmOne = "default", algorithmTwo = "default", algorithmThree = "default", algorithmFive = "default", algorithmThree = "default", algorithmFour = "default"):
         data = []
         x_axis_data = []
         for algorithm in algorithms:
@@ -220,7 +293,7 @@ class DataReporting:
         
         self.generateBoxPlots(data, x_axis_data, title)
         
-    def displaySigmaBoxPlots(self, title = "undefined"):
+    def display_sigma_box_plots(self, title = "undefined"):
         data = []
         x_axis_data = []
         index = 0
@@ -320,7 +393,7 @@ class DataReporting:
                      transform=ax1.get_xaxis_transform(),
                      horizontalalignment='center', size='x-small',
                      weight=weights[k], color=box_colors[k])
-        
+            
         
         #Finally, add a basic legend f'{N} Random Numbers'
         fig.text(0.80, 0.01, self.tan_label,
