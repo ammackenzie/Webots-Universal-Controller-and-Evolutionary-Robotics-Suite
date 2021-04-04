@@ -241,10 +241,11 @@ class UniversalController:
         #Get only the X and Y coordinates to create the endpoint vector
         endpoint = self.robot_trans.getSFVec3f()[0: 3: 2]
         distance_FS = np.sqrt((endpoint[0] - self.robot_starting_location[0])**2 + (endpoint[1] - self.robot_starting_location[2])**2)
-        #reset the simulation
-        self.reset_all_physics()
         #find fitness
         fit = self.calculate_fitness()
+        #reset the simulation
+        self.reset_all_physics()
+   
         if map_elites:
             average_velocity = np.average(velocity)
             #average_angular_V = np.average(angular_V)
@@ -339,8 +340,8 @@ def main():
         #my_EA.switch_to_average_velocity()
         #my_EA.switch_to_distance_FS()
         #my_EA.switch_to_median_velocity()
-        my_EA.switch_to_multi_dimensional_descriptor([1, 2])
-        my_data = DataReporting("(HR)rerun TEST MAP-ELITES AV-EP  .90ST " + str(i))
+        #my_EA.switch_to_multi_dimensional_descriptor([1, 2])
+        my_data = DataReporting("(HR) NIP-ES EP  .90ST " + str(i))
         my_controller.data_reporting = my_data
          
         #10k max evals for nipes - does not take in gens
